@@ -5,7 +5,7 @@ export type WeddingImage = {
   alt: string;
   aspectRatio: "1:1" | "1:3" | "3:4" | "4:3" | "16:9";
   role: "hero" | "story" | "event" | "gallery" | "decorative" | "rsvp";
-  source: "banani-firebase" | "banani-generated";
+  source: "banani-firebase" | "banani-generated" | "local";
 };
 
 export const weddingTheme = {
@@ -122,8 +122,8 @@ export const images = [
     alt: "Twilight sky",
     aspectRatio: "16:9",
     role: "hero",
-    source: "banani-firebase",
-    src: "https://firebasestorage.googleapis.com/v0/b/banani-prod.appspot.com/o/reference-images%2F26a5e1e8-897d-4f9a-b54e-b42f7b4142e3?alt=media&token=9adee2ef-31d9-4863-be51-385748ed2e1a",
+    source: "local",
+    src: "/hero/layer-0-sky.png",
   },
   {
     id: "hero-mountain",
@@ -131,8 +131,8 @@ export const images = [
     alt: "Mountain silhouette",
     aspectRatio: "16:9",
     role: "hero",
-    source: "banani-firebase",
-    src: "https://firebasestorage.googleapis.com/v0/b/banani-prod.appspot.com/o/reference-images%2Ff436c404-56bf-4d24-a826-59537d1661fd?alt=media&token=91431ade-47bb-4ec3-b151-d59405bb875a",
+    source: "local",
+    src: "/hero/layer-1-mountain.png",
   },
   {
     id: "hero-church",
@@ -140,8 +140,8 @@ export const images = [
     alt: "Church with fairy lights",
     aspectRatio: "16:9",
     role: "hero",
-    source: "banani-firebase",
-    src: "https://firebasestorage.googleapis.com/v0/b/banani-prod.appspot.com/o/reference-images%2Fb7aeb559-268d-4665-ba3a-d86f14f28f13?alt=media&token=952e0fac-e37d-41aa-9585-a0bc679ef882",
+    source: "local",
+    src: "/hero/layer-2-church.png",
   },
   {
     id: "hero-blossoms",
@@ -149,8 +149,8 @@ export const images = [
     alt: "Cherry blossom branches",
     aspectRatio: "16:9",
     role: "hero",
-    source: "banani-firebase",
-    src: "https://firebasestorage.googleapis.com/v0/b/banani-prod.appspot.com/o/reference-images%2Fde129549-78ab-448e-ba9e-780f8f6e1278?alt=media&token=085b93ba-4d44-4153-98ee-3b68cb82977c",
+    source: "local",
+    src: "/hero/layer-3-blossoms.png",
   },
   {
     id: "story-couple-portrait",
