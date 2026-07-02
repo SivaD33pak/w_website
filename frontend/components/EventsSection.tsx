@@ -1,6 +1,8 @@
 "use client";
 
-import { events } from "@/lib/wedding-content";
+import { useEffect, useState } from "react";
+import { events as localEvents } from "@/lib/wedding-content";
+import { getEnrichedEvents, type LocalEvent } from "@/lib/api-data";
 import { motion } from "framer-motion";
 import { fadeInUp, staggerContainer, staggerItem } from "@/lib/animations";
 import Image from "next/image";
@@ -71,6 +73,20 @@ function StarIcon() {
 const icons = [CalendarIcon, PeopleIcon, StarIcon];
 
 export default function EventsSection() {
+  // Seed with local data so SSR + first paint render immediately, then swap in
+  // the API-merged data when NEXT_PUBLIC_USE_API_DATA is enabled.
+  const [events, setEvents] = useState<LocalEvent[]>([...localEvents]);
+
+  useEffect(() => {
+    let active = true;
+    getEnrichedEvents().then((data) => {
+      if (active) setEvents(data);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   return (
     <section
       id="events"
@@ -107,7 +123,7 @@ export default function EventsSection() {
         </div>
 
         <motion.div
-          className="flex items-stretch gap-0 relative px-4 md:px-20 overflow-x-auto"
+          className="flex flex-wrap items-stretch justify-center gap-6 relative px-4 md:px-20 md:gap-0"
           variants={staggerContainer}
           initial="hidden"
           whileInView="visible"
@@ -155,9 +171,9 @@ export default function EventsSection() {
                   </p>
                 </div>
 
-                {/* Timeline dot between cards */}
+                {/* Timeline dot between cards (desktop horizontal layout only) */}
                 {i < events.length - 1 && (
-                  <div className="flex items-center mx-4" style={{ zIndex: 2 }}>
+                  <div className="flex items-center mx-4 hidden md:flex" style={{ zIndex: 2 }}>
                     <div className="event-dot rounded-full flex items-center justify-center">
                       <div className="event-dot-inner rounded-full bg-cream" />
                     </div>

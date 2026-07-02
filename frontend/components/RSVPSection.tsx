@@ -5,6 +5,11 @@ import { weddingDate } from "@/lib/wedding-content";
 import { foodOptions } from "@/lib/wedding-data";
 import { motion } from "framer-motion";
 import { fadeInUp, staggerContainer, staggerItem } from "@/lib/animations";
+import { ApiError, verifyInvitation, submitRsvp } from "@/lib/api";
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
 
 type FormData = {
   invitationCode: string;
@@ -15,7 +20,23 @@ type FormData = {
   message: string;
 };
 
+/** Multi-step state: enter code → verify → fill the rest → submit. */
+type Step = "code" | "form";
+
+/** Verify button status shown while checking the invitation code. */
+type VerifyStatus = "idle" | "verifying" | "invalid";
+
+/** Submit status for the final RSVP payload. */
 type FormStatus = "idle" | "submitting" | "success" | "error";
+
+const EMPTY_FORM: FormData = {
+  invitationCode: "",
+  guestName: "",
+  adults: "",
+  children: "",
+  foodPreference: "",
+  message: "",
+};
 
 function HeartSVG({ size = 10 }: { size?: number }) {
   return (
@@ -26,47 +47,130 @@ function HeartSVG({ size = 10 }: { size?: number }) {
 }
 
 export default function RSVPSection() {
-  const [form, setForm] = useState<FormData>({
-    invitationCode: "",
-    guestName: "",
-    adults: "",
-    children: "",
-    foodPreference: "",
-    message: "",
-  });
+  const [form, setForm] = useState<FormData>(EMPTY_FORM);
+  const [step, setStep] = useState<Step>("code");
+  const [verifyStatus, setVerifyStatus] = useState<VerifyStatus>("idle");
+  const [verifyError, setVerifyError] = useState<string | null>(null);
   const [status, setStatus] = useState<FormStatus>("idle");
+  const [submitMessage, setSubmitMessage] = useState<string | null>(null);
+  const [coming, setComing] = useState(true);
+
+  // ---------------------------------------------------------------------------
+  // Field helpers
+  // ---------------------------------------------------------------------------
 
   function handleChange(
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
+    >,
   ) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
 
+  // ---------------------------------------------------------------------------
+  // Step 1 — verify the invitation code
+  // ---------------------------------------------------------------------------
+
+  async function handleVerify(e: FormEvent) {
+    e.preventDefault();
+    setVerifyStatus("verifying");
+    setVerifyError(null);
+
+    try {
+      const result = await verifyInvitation(form.invitationCode.trim());
+      if (result.valid) {
+        // Prefill the guest name from the guest list; the guest can still edit it.
+        setForm((prev) => ({
+          ...prev,
+          guestName: result.guestName || prev.guestName,
+        }));
+        setVerifyStatus("idle");
+        setStep("form");
+      } else {
+        setVerifyStatus("invalid");
+        setVerifyError(result.message || "Invitation code not found.");
+      }
+    } catch (err) {
+      setVerifyStatus("invalid");
+      setVerifyError(
+        err instanceof ApiError
+          ? err.message
+          : "Unable to verify your code. Please try again.",
+      );
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Step 2 — submit the full RSVP
+  // ---------------------------------------------------------------------------
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setStatus("submitting");
+    setSubmitMessage(null);
 
-    // Simulate API call — will be wired to backend later
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      setStatus("success");
-      setForm({
-        invitationCode: "",
-        guestName: "",
-        adults: "",
-        children: "",
-        foodPreference: "",
-        message: "",
+      const result = await submitRsvp({
+        invitationCode: form.invitationCode.trim(),
+        guestName: form.guestName.trim(),
+        coming,
+        adults: Number(form.adults) || 0,
+        children: Number(form.children) || 0,
+        foodPreference: form.foodPreference || null,
+        message: form.message.trim() || null,
       });
-      // Reset success message after a few seconds
-      setTimeout(() => setStatus("idle"), 5000);
-    } catch {
+
+      if (result.saved) {
+        setStatus("success");
+        setSubmitMessage(
+          result.message ||
+            "Thank you! Your RSVP has been received. We can't wait to celebrate with you!",
+        );
+        // Reset to the start after a successful submission.
+        setForm(EMPTY_FORM);
+        setComing(true);
+        setStep("code");
+        setTimeout(() => {
+          setStatus("idle");
+          setSubmitMessage(null);
+        }, 6000);
+      } else {
+        // Backend rejected it (e.g. invalid code) without throwing.
+        setStatus("error");
+        setSubmitMessage(
+          result.message || "Your RSVP could not be saved. Please try again.",
+        );
+        setTimeout(() => {
+          setStatus("idle");
+          setSubmitMessage(null);
+        }, 6000);
+      }
+    } catch (err) {
       setStatus("error");
-      setTimeout(() => setStatus("idle"), 5000);
+      setSubmitMessage(
+        err instanceof ApiError
+          ? err.message
+          : "Something went wrong. Please try again.",
+      );
+      setTimeout(() => {
+        setStatus("idle");
+        setSubmitMessage(null);
+      }, 6000);
     }
   }
+
+  /** Return to step 1 to use a different invitation code. */
+  function resetToCodeStep() {
+    setStep("code");
+    setForm(EMPTY_FORM);
+    setComing(true);
+    setStatus("idle");
+    setSubmitMessage(null);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Render
+  // ---------------------------------------------------------------------------
 
   return (
     <section
@@ -115,8 +219,7 @@ export default function RSVPSection() {
               color: "#3a2d2d",
             }}
           >
-            🎉 Thank you! Your RSVP has been received. We can&apos;t wait to
-            celebrate with you!
+            🎉 {submitMessage}
           </motion.div>
         )}
 
@@ -131,136 +234,258 @@ export default function RSVPSection() {
               color: "#3a2d2d",
             }}
           >
-            Something went wrong. Please try again.
+            {submitMessage}
           </motion.div>
         )}
 
-        <motion.form
-          onSubmit={handleSubmit}
-          className="section-card w-full p-6 md:p-10"
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-30px" }}
-        >
-          <div className="flex flex-col gap-4">
-            {/* Invitation Code */}
-            <motion.div variants={staggerItem}>
-              <label className="rsvp-label font-body text-xs tracking-wider uppercase mb-1 block">
-                Invitation Code
-              </label>
-              <input
-                type="text"
-                name="invitationCode"
-                value={form.invitationCode}
-                onChange={handleChange}
-                placeholder="Enter your invitation code"
-                className="rsvp-field font-body"
-                required
-              />
-            </motion.div>
-
-            {/* Guest Name */}
-            <motion.div variants={staggerItem}>
-              <label className="rsvp-label font-body text-xs tracking-wider uppercase mb-1 block">
-                Guest Name
-              </label>
-              <input
-                type="text"
-                name="guestName"
-                value={form.guestName}
-                onChange={handleChange}
-                placeholder="Your full name"
-                className="rsvp-field font-body"
-                required
-              />
-            </motion.div>
-
-            {/* Adults */}
-            <motion.div variants={staggerItem}>
-              <label className="rsvp-label font-body text-xs tracking-wider uppercase mb-1 block">
-                Number of Adults
-              </label>
-              <input
-                type="number"
-                name="adults"
-                value={form.adults}
-                onChange={handleChange}
-                placeholder="e.g. 2"
-                min={0}
-                max={10}
-                className="rsvp-field font-body"
-                required
-              />
-            </motion.div>
-
-            {/* Children */}
-            <motion.div variants={staggerItem}>
-              <label className="rsvp-label font-body text-xs tracking-wider uppercase mb-1 block">
-                Number of Children
-              </label>
-              <input
-                type="number"
-                name="children"
-                value={form.children}
-                onChange={handleChange}
-                placeholder="e.g. 1"
-                min={0}
-                max={10}
-                className="rsvp-field font-body"
-              />
-            </motion.div>
-
-            {/* Food Preference */}
-            <motion.div variants={staggerItem}>
-              <label className="rsvp-label font-body text-xs tracking-wider uppercase mb-1 block">
-                Food Preference
-              </label>
-              <select
-                name="foodPreference"
-                value={form.foodPreference}
-                onChange={handleChange}
-                className="rsvp-field font-body"
+        {step === "code" ? (
+          /* ----------------------------------------------------------------- */
+          /* Step 1 — invitation code verification                              */
+          /* ----------------------------------------------------------------- */
+          <motion.form
+            onSubmit={handleVerify}
+            className="section-card w-full p-6 md:p-10"
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-30px" }}
+          >
+            <div className="flex flex-col gap-4">
+              <motion.p
+                variants={staggerItem}
+                className="font-body text-xs text-center tracking-wider mb-1"
+                style={{ color: "#3a2d2d", opacity: 0.8 }}
               >
-                {foodOptions.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-            </motion.div>
+                Enter the invitation code from your invite to begin.
+              </motion.p>
 
-            {/* Message */}
-            <motion.div variants={staggerItem}>
-              <label className="rsvp-label font-body text-xs tracking-wider uppercase mb-2 block">
-                Message / Blessings
-              </label>
-              <textarea
-                name="message"
-                value={form.message}
-                onChange={handleChange}
-                placeholder="Share a blessing or message for the couple..."
-                rows={3}
-                className="rsvp-field font-body resize-none"
-              />
-            </motion.div>
+              <motion.div variants={staggerItem}>
+                <label className="rsvp-label font-body text-xs tracking-wider uppercase mb-1 block">
+                  Invitation Code
+                </label>
+                <input
+                  type="text"
+                  name="invitationCode"
+                  value={form.invitationCode}
+                  onChange={handleChange}
+                  placeholder="Enter your invitation code"
+                  className="rsvp-field font-body"
+                  required
+                  disabled={verifyStatus === "verifying"}
+                />
+                {verifyStatus === "invalid" && (
+                  <p
+                    className="font-body text-xs mt-2"
+                    style={{ color: "#9b4453" }}
+                  >
+                    {verifyError}
+                  </p>
+                )}
+              </motion.div>
 
-            {/* Submit */}
-            <motion.div variants={staggerItem}>
-              <button
-                type="submit"
-                disabled={status === "submitting"}
-                className="rsvp-submit w-full flex items-center justify-center gap-3 mt-2 font-body font-medium text-sm tracking-widest uppercase text-foreground py-4 rounded-full"
+              <motion.div variants={staggerItem}>
+                <button
+                  type="submit"
+                  disabled={verifyStatus === "verifying"}
+                  className="rsvp-submit w-full flex items-center justify-center gap-3 mt-2 font-body font-medium text-sm tracking-widest uppercase text-foreground py-4 rounded-full"
+                >
+                  {verifyStatus === "verifying" ? "VERIFYING..." : "CONTINUE"}
+                </button>
+              </motion.div>
+            </div>
+          </motion.form>
+        ) : (
+          /* ----------------------------------------------------------------- */
+          /* Step 2 — full RSVP form                                            */
+          /* ----------------------------------------------------------------- */
+          <motion.form
+            onSubmit={handleSubmit}
+            className="section-card w-full p-6 md:p-10"
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-30px" }}
+          >
+            <div className="flex flex-col gap-4">
+              {/* Attending toggle (drives the required `coming` boolean) */}
+              <motion.div variants={staggerItem}>
+                <label className="rsvp-label font-body text-xs tracking-wider uppercase mb-2 block">
+                  Will you attend?
+                </label>
+                <div className="flex gap-3">
+                  <AttendingOption
+                    label="Joyfully Accept"
+                    selected={coming}
+                    onClick={() => setComing(true)}
+                  />
+                  <AttendingOption
+                    label="Regretfully Decline"
+                    selected={!coming}
+                    onClick={() => setComing(false)}
+                  />
+                </div>
+              </motion.div>
+
+              {/* Guest Name */}
+              <motion.div variants={staggerItem}>
+                <label className="rsvp-label font-body text-xs tracking-wider uppercase mb-1 block">
+                  Guest Name
+                </label>
+                <input
+                  type="text"
+                  name="guestName"
+                  value={form.guestName}
+                  onChange={handleChange}
+                  placeholder="Your full name"
+                  className="rsvp-field font-body"
+                  required
+                />
+              </motion.div>
+
+              {/* Adults */}
+              <motion.div variants={staggerItem}>
+                <label className="rsvp-label font-body text-xs tracking-wider uppercase mb-1 block">
+                  Number of Adults
+                </label>
+                <input
+                  type="number"
+                  name="adults"
+                  value={form.adults}
+                  onChange={handleChange}
+                  placeholder="e.g. 2"
+                  min={0}
+                  max={10}
+                  className="rsvp-field font-body"
+                  required={coming}
+                  disabled={!coming}
+                />
+              </motion.div>
+
+              {/* Children */}
+              <motion.div variants={staggerItem}>
+                <label className="rsvp-label font-body text-xs tracking-wider uppercase mb-1 block">
+                  Number of Children
+                </label>
+                <input
+                  type="number"
+                  name="children"
+                  value={form.children}
+                  onChange={handleChange}
+                  placeholder="e.g. 1"
+                  min={0}
+                  max={10}
+                  className="rsvp-field font-body"
+                  disabled={!coming}
+                />
+              </motion.div>
+
+              {/* Food Preference */}
+              <motion.div variants={staggerItem}>
+                <label className="rsvp-label font-body text-xs tracking-wider uppercase mb-1 block">
+                  Food Preference
+                </label>
+                <select
+                  name="foodPreference"
+                  value={form.foodPreference}
+                  onChange={handleChange}
+                  className="rsvp-field font-body"
+                  disabled={!coming}
+                >
+                  {foodOptions.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </motion.div>
+
+              {/* Message */}
+              <motion.div variants={staggerItem}>
+                <label className="rsvp-label font-body text-xs tracking-wider uppercase mb-2 block">
+                  Message / Blessings
+                </label>
+                <textarea
+                  name="message"
+                  value={form.message}
+                  onChange={handleChange}
+                  placeholder="Share a blessing or message for the couple..."
+                  rows={3}
+                  className="rsvp-field font-body resize-none"
+                />
+              </motion.div>
+
+              {/* Submit */}
+              <motion.div variants={staggerItem}>
+                <button
+                  type="submit"
+                  disabled={status === "submitting"}
+                  className="rsvp-submit w-full flex items-center justify-center gap-3 mt-2 font-body font-medium text-sm tracking-widest uppercase text-foreground py-4 rounded-full"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z" />
+                  </svg>
+                  {status === "submitting" ? "SENDING..." : "SEND WITH LOVE"}
+                </button>
+              </motion.div>
+
+              <motion.button
+                type="button"
+                onClick={resetToCodeStep}
+                variants={staggerItem}
+                className="font-body text-xs tracking-wider uppercase self-center mt-1"
+                style={{ color: "#3a2d2d", opacity: 0.6 }}
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z" />
-                </svg>
-                {status === "submitting" ? "SENDING..." : "SEND WITH LOVE"}
-              </button>
-            </motion.div>
-          </div>
-        </motion.form>
+                Use a different code
+              </motion.button>
+            </div>
+          </motion.form>
+        )}
       </motion.div>
     </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Attending toggle option button
+// ---------------------------------------------------------------------------
+
+function AttendingOption({
+  label,
+  selected,
+  onClick,
+}: {
+  label: string;
+  selected: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      /* Tighter padding + tracking on mobile so the two toggle buttons fit
+         side-by-side on narrow screens; relax to the wider style on sm+. */
+      className="flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-lg font-body text-[10px] leading-tight tracking-wide uppercase transition-colors sm:px-4 sm:text-xs sm:tracking-wider"
+      style={{
+        background: selected ? "rgba(216, 178, 110, 0.18)" : "transparent",
+        border: selected
+          ? "1px solid rgba(216, 178, 110, 0.6)"
+          : "1px solid rgba(58, 45, 45, 0.25)",
+        color: "#3a2d2d",
+        fontWeight: selected ? 600 : 400,
+      }}
+    >
+      <span
+        className="rounded-full flex items-center justify-center flex-shrink-0"
+        style={{
+          width: 14,
+          height: 14,
+          minWidth: 14,
+          border: selected
+            ? "5px solid #d8b26e"
+            : "1px solid rgba(58, 45, 45, 0.4)",
+        }}
+      />
+      {label}
+    </button>
   );
 }

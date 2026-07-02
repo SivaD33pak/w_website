@@ -1,9 +1,11 @@
 "use client";
 
+import { useRef } from "react";
 import Image from "next/image";
 import { storyLines, images } from "@/lib/wedding-content";
 import { motion } from "framer-motion";
 import { fadeInUp, scaleIn } from "@/lib/animations";
+import { useParallax } from "@/lib/use-parallax";
 
 function HeartSVG({ size = 10 }: { size?: number }) {
   return (
@@ -25,8 +27,16 @@ function StoryCrossIcon({ size = 24 }: { size?: number }) {
 const portrait = images.find((img) => img.id === "story-couple-portrait");
 
 export default function OurStorySection() {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const portraitRef = useRef<HTMLDivElement>(null);
+
+  // Subtle cursor/gyro parallax on the couple portrait
+  useParallax(sectionRef, [{ ref: portraitRef, speedX: -10, speedY: -8 }], {
+    smoothing: 0.06,
+  });
+
   return (
-    <section id="our-story" className="section-paper relative w-full overflow-hidden">
+    <section ref={sectionRef} id="our-story" className="section-paper relative w-full overflow-hidden">
       {/* Subtle background pattern */}
       <div
         className="absolute inset-0 w-full h-full opacity-5"
@@ -36,7 +46,7 @@ export default function OurStorySection() {
         }}
       />
 
-      <div className="relative flex max-w-5xl mx-auto items-center justify-between gap-8 px-6 md:px-16">
+      <div className="relative flex max-w-5xl mx-auto flex-col items-center gap-10 px-6 md:flex-row md:items-center md:justify-between md:gap-8 md:px-16">
         {/* Story text */}
         <motion.div
           className="flex flex-1 flex-col items-center"
@@ -68,8 +78,10 @@ export default function OurStorySection() {
 
         {/* Portrait */}
         <motion.div
+          ref={portraitRef}
           className="flex-shrink-0 flex flex-col items-center relative"
-          style={{ width: "clamp(200px, 25vw, 360px)" }}
+          /* Wider on mobile (full-width column), tighter side-by-side on desktop */
+          style={{ width: "clamp(200px, 40vw, 360px)" }}
           variants={scaleIn}
           initial="hidden"
           whileInView="visible"
@@ -95,7 +107,7 @@ export default function OurStorySection() {
                 alt={portrait.alt}
                 fill
                 className="object-cover"
-                sizes="280px"
+                sizes="(max-width: 767px) 200px, 280px"
               />
             )}
           </div>

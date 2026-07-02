@@ -7,6 +7,7 @@ import { heroData } from "@/lib/wedding-data";
 import { motion } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useParallax, GyroPermissionButton } from "@/lib/use-parallax";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -31,31 +32,60 @@ const heroImages = images.filter((img) => img.role === "hero");
 
 export default function HeroSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
+  // Individual refs for each hero layer — used by both scroll parallax
+  // (via layerRefs array) and cursor/gyro parallax (via individual refs).
+  const layer0Ref = useRef<HTMLDivElement>(null);
+  const layer1Ref = useRef<HTMLDivElement>(null);
+  const layer2Ref = useRef<HTMLDivElement>(null);
+  const layer3Ref = useRef<HTMLDivElement>(null);
   const layerRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
     if (!sectionRef.current) return;
 
+    // Populate the array from the individual refs for the scroll parallax loop.
+    layerRefs.current = [layer0Ref.current, layer1Ref.current, layer2Ref.current, layer3Ref.current];
+
     const layers = layerRefs.current.filter(Boolean);
     const speeds = [0, 0.15, 0.25, 0.35];
 
-    layers.forEach((layer, i) => {
-      gsap.to(layer!, {
-        yPercent: speeds[i] * 100,
-        ease: "none",
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top top",
-          end: "bottom top",
-          scrub: true,
-        },
+    // gsap.context scopes all animations + ScrollTriggers created inside it,
+    // so ctx.revert() only kills THIS section's effects.
+    const ctx = gsap.context(() => {
+      layers.forEach((layer, i) => {
+        gsap.to(layer!, {
+          yPercent: speeds[i] * 100,
+          ease: "none",
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top top",
+            end: "bottom top",
+            scrub: true,
+          },
+        });
       });
-    });
+    }, sectionRef);
 
-    return () => {
-      ScrollTrigger.getAll().forEach((t) => t.kill());
-    };
+    return () => ctx.revert();
   }, []);
+
+  // Cursor/gyroscope parallax: front layers (closest to viewer, higher index)
+  // move fastest and decrease progressively toward the inner/deep layers,
+  // creating a depth illusion. Layer 0 (sky, farthest) barely moves.
+  // This composes with the scroll-based yPercent parallax above (x/y vs
+  // yPercent are independent GSAP transform components — no conflict).
+  const { needsPermission, requestGyroPermission } = useParallax(
+    sectionRef,
+    [
+      { ref: layer0Ref, speedX: 0, speedY: 0 },      // sky:        fixed base
+      { ref: layer1Ref, speedX: -18, speedY: -14 },  // mountain:   slow drift
+      { ref: layer2Ref, speedX: -32, speedY: -24 },  // church:     moderate
+      { ref: layer3Ref, speedX: -50, speedY: -38 },  // blossoms:   fastest (front)
+    ],
+    { smoothing: 0.08 },
+  );
+
+  const allLayerRefs = [layer0Ref, layer1Ref, layer2Ref, layer3Ref];
 
   return (
     <section
@@ -63,15 +93,23 @@ export default function HeroSection() {
       ref={sectionRef}
       className="hero-shell relative w-full overflow-hidden"
     >
-      {/* Parallax background layers */}
+      {/* Parallax background layers.
+          Each layer is intentionally oversized (negative inset) so that its
+          edges stay hidden behind the viewport even at maximum parallax
+          displacement. Front layers move faster (up to 50px), so they get a
+          larger buffer. Percentage insets scale with viewport size so the
+          buffer always covers the fixed-pixel displacement. */}
       {heroImages.map((img, i) => (
         <div
           key={img.id}
-          ref={(el) => {
-            layerRefs.current[i] = el;
-          }}
+          ref={allLayerRefs[i]}
           className={`hero-layer-${i} absolute`}
-          style={{ inset: 0 }}
+          /* inset buffer per layer (must exceed max parallax offset):
+             layer 0: ~0px move  → -6%
+             layer 1: ~18px move → -8%
+             layer 2: ~32px move → -10%
+             layer 3: ~50px move → -12% */
+          style={{ inset: `${-6 - i * 2}%` }}
         >
           <Image
             src={img.src}
@@ -95,6 +133,13 @@ export default function HeroSection() {
 
       {/* Content */}
       <div className="hero-content relative flex flex-col items-center text-center">
+        {/* iOS gyroscope permission prompt */}
+        {needsPermission && (
+          <div className="mb-6">
+            <GyroPermissionButton onRequest={requestGyroPermission} />
+          </div>
+        )}
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -146,7 +191,7 @@ export default function HeroSection() {
         </motion.h1>
 
         <motion.div
-          className="mt-7"
+          className="mt-7 px-6"
           style={{ maxWidth: 520 }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -206,32 +251,14 @@ export default function HeroSection() {
             </span>
           </div>
 
-          {/* Time segment */}
-          <div className="hero-card-segment flex flex-col items-center justify-center gap-2 px-6 py-7 md:px-11">
-            <svg
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#D8B26E"
-              strokeWidth="1.4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <polyline points="12 6 12 12 16 14" />
-            </svg>
-            <div className="hero-meta-divider" />
-            <span className="hero-meta-small font-body text-foreground">
-              DETAILS TO
-            </span>
-            <span className="hero-meta-small font-body text-foreground">
-              FOLLOW
-            </span>
-          </div>
-
-          {/* Venue segment */}
-          <div className="flex flex-col items-center justify-center gap-1 px-6 py-7 text-center md:px-11">
+          {/* Venue segment — clickable, opens Google Maps in a new tab */}
+          <a
+            href={venue.mapUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hero-card-segment flex flex-col items-center justify-center gap-1 px-6 py-7 text-center transition-all duration-300 hover:bg-foreground/5 md:px-11"
+            aria-label={`Open ${venue.name} in Google Maps`}
+          >
             <svg
               width="22"
               height="22"
@@ -248,10 +275,10 @@ export default function HeroSection() {
             <span className="hero-meta-venue font-body text-foreground font-semibold">
               {venue.label}
             </span>
-            <span className="hero-meta-venue-muted font-body text-foreground">
+            <span className="hero-meta-venue-muted font-body text-foreground underline decoration-gold/40 underline-offset-2">
               {venue.address}
             </span>
-          </div>
+          </a>
         </motion.div>
 
         {/* RSVP CTA */}

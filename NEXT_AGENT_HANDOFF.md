@@ -14,24 +14,33 @@ direction is to migrate that design into a maintainable monorepo.
 
 ## Current Repository State
 
-The monorepo structure is in place and the **frontend migration is complete**
-(the Banani static page has been converted into real React components):
+The monorepo structure is in place. The **frontend migration is complete**
+(the Banani static page is real React components), **the backend is fully
+implemented** — all four API endpoints are wired to a real `ExcelManager`
+service that reads/writes `wedding_database.xlsx` — **and the frontend is now
+wired to the backend** (RSVP verify→submit flow live; events/gallery switchable
+via an env flag).
 
 ```text
 Wedding Website/
-├── .gitignore                      # NEW — node_modules/.next/__pycache__/.venv/.env
+├── .gitignore                      # node_modules/.next/__pycache__/.venv/.env
 ├── ARCHITECTURE.md
 ├── AI_HANDOFF.md
 ├── NEXT_AGENT_HANDOFF.md
 ├── READ_ME.md
 ├── backend/
-│   ├── app.py                      # FastAPI starter (placeholder endpoints)
-│   ├── routes/                     # events, gallery, rsvp (placeholders)
-│   ├── services/                   # excel_manager, wedding_data (placeholders)
-│   ├── models/rsvp.py
-│   ├── excel/wedding_database.xlsx # Guests, RSVP, Events, Gallery sheets
+│   ├── .env.example                # CORS_ORIGINS=http://localhost:3000 (documented)
+│   ├── app.py                      # FastAPI app — env-based CORS, eager ExcelManager init
+│   ├── routes/                     # events, gallery, rsvp — WIRED to ExcelManager (no placeholders)
+│   ├── services/
+│   │   ├── __init__.py             # singleton factory get_excel_manager()
+│   │   └── excel_manager.py        # FULLY IMPLEMENTED — the only class that touches .xlsx
+│   ├── models/                     # events.py, gallery.py, rsvp.py — Pydantic models + responses
+│   ├── scripts/
+│   │   └── seed_database.py        # NEW — re-seed workbook: `python -m scripts.seed_database`
+│   ├── excel/wedding_database.xlsx # Guests/RSVP/Events/Gallery — seeded, clean (no phantom rows)
 │   ├── utils/
-│   └── requirements.txt
+│   └── requirements.txt            # fastapi, uvicorn, openpyxl, pydantic, pydantic-settings
 └── frontend/
     ├── app/
     │   ├── globals.css             # Tailwind + ported Banani CSS (hero/section/nav/RSVP/footer)
@@ -50,30 +59,34 @@ Wedding Website/
     │   ├── ContactSection.tsx
     │   └── WeddingFooter.tsx
     ├── lib/
-    │   ├── wedding-content.ts      # ORIGINAL data (couple, date, venue, events, images, nav)
-    │   ├── wedding-data.ts         # NEW — hero quote, contact info, food options
-    │   ├── animations.ts           # NEW — Framer Motion variants (fadeInUp, stagger, scaleIn, digitFlip)
-    │   └── particles.ts            # NEW — deterministic seeded particles (SSR-safe)
+    │   ├── wedding-content.ts      # data (couple, date, venue, events, images, nav)
+    │   ├── wedding-data.ts         # hero quote, contact info, food options
+    │   ├── api.ts                  # typed fetch client — verify/rsvp/events/gallery (NEXT_PUBLIC_API_URL)
+    │   ├── api-data.ts             # env-flag merge layer — getEnrichedEvents/Gallery (NEXT_PUBLIC_USE_API_DATA)
+    │   ├── animations.ts           # Framer Motion variants (fadeInUp, stagger, scaleIn, digitFlip)
+    │   └── particles.ts            # deterministic seeded particles (SSR-safe)
     ├── public/
-    │   └── favicon.svg             # NEW — gold cross on dark background
+    │   └── favicon.svg             # gold cross on dark background
     ├── docs/banani-export-migration.md
     ├── reference/                  # preserved original Banani export
     ├── styles.css                  # original generated CSS (visual reference only)
     ├── main.html                   # original generated HTML (visual reference only)
-    ├── postcss.config.js           # NEW — required for Tailwind processing
+    ├── postcss.config.js
     ├── tailwind.config.ts
     ├── next.config.ts
-    ├── tsconfig.json
+    ├── tsconfig.json               # baseUrl removed (TS 7.0 deprecation) — paths still resolves
+    ├── .env.example                # NEXT_PUBLIC_API_URL + NEXT_PUBLIC_USE_API_DATA (documented)
     ├── next-env.d.ts
     ├── package.json
     └── package-lock.json
 ```
 
-Generated local folders (now covered by `.gitignore`):
+Generated local folders (covered by `.gitignore`):
 
 - `frontend/node_modules/`
 - `frontend/.next/`
 - `backend/**/__pycache__/`
+- `backend/.venv/`
 
 ## Completed Work
 
@@ -106,15 +119,7 @@ Minimal Next.js 15 app scaffold: `app/`, `package.json`, `tsconfig.json`,
 
 ### 4. Backend Scaffold (earlier phase)
 
-FastAPI starter structure with placeholder endpoints:
-
-- `GET /health`
-- `GET /api/events`
-- `GET /api/gallery`
-- `POST /api/verify`
-- `POST /api/rsvp`
-
-`ExcelManager` exists but does not yet read/write the workbook.
+FastAPI starter structure was created with placeholder endpoints.
 
 ### 5. Excel Workbook (earlier phase)
 
@@ -190,6 +195,159 @@ controlled form fields:
 Form uses `useState`, client-side validation, a simulated submit with loading/
 success/error states, and toast feedback. **It is NOT yet wired to the backend.**
 
+### 7. Backend Build — DONE (this phase)
+
+All four API endpoints are fully implemented and wired to a real
+`ExcelManager` service. No more placeholder returns.
+
+#### Routes (all under `/api` prefix)
+
+| Endpoint | Returns | Source |
+|----------|---------|--------|
+| `GET /api/events` | `list[EventResponse]` — `eventId, eventName, date, time, venue` | ExcelManager → Events sheet |
+| `GET /api/gallery` | `list[GalleryImageResponse]` — `imageId, title, imagePath` | ExcelManager → Gallery sheet |
+| `POST /api/verify` | `InvitationVerificationResponse` — `valid, guestId, guestName, message` | ExcelManager → Guests sheet lookup |
+| `POST /api/rsvp` | `RSVPResponse` — `saved, guestId, guestName, message` | ExcelManager → RSVP sheet write |
+| `GET /health` | `{"status": "ok"}` | static |
+
+#### `ExcelManager` (`backend/services/excel_manager.py`)
+
+The **only** class that touches `.xlsx`. All routes import
+`get_excel_manager()` from `services` (lazy singleton) and never instantiate
+their own. Swapping to PostgreSQL/MySQL later requires rewriting **only** this
+file — the route layer is storage-agnostic.
+
+Key behaviors:
+- **Reads** (`get_events`, `get_gallery`, `get_guest_by_code`,
+  `verify_invitation`) use an in-memory cache loaded once at startup → fast,
+  lock-free.
+- **Writes** (`save_rsvp`) acquire a `threading.Lock`, reload the workbook
+  fresh, mutate, and persist immediately.
+- **Upsert**: `save_rsvp` checks for an existing RSVP row by `GuestID` and
+  updates it in place; only appends a new row if none exists (no duplicates).
+- **Robust row placement**: writes scan from row 2 to find the first truly
+  empty cell — does NOT rely on `ws.max_row`/`ws.append()` (which previously
+  landed rows at 201+ due to phantom empty rows).
+- **datetime handling**: Excel date cells (`datetime` objects) are normalized
+  to `YYYY-MM-DD` strings. Empty rows (where col A is `None`) are skipped.
+
+#### Pydantic models (`backend/models/`)
+
+- `events.py` → `EventResponse`
+- `gallery.py` → `GalleryImageResponse`
+- `rsvp.py` → `InvitationVerificationRequest`, `RSVPRequest`,
+  `InvitationVerificationResponse`, `RSVPResponse`
+
+All models use **camelCase aliases** (`Field(alias="invitationCode")`) with
+`ConfigDict(populate_by_name=True, by_alias=True)` so the API accepts and
+returns camelCase (matching the React frontend) while Python code uses
+snake_case internally. Both `{"invitationCode": ...}` and
+`{"invitation_code": ...}` are accepted on input.
+
+#### Seed script (`backend/scripts/seed_database.py`)
+
+Reusable, idempotent workbook seeder:
+
+```bash
+cd backend
+python -m scripts.seed_database                                    # fresh seed (overwrites)
+python -m scripts.seed_database --add-guest "Name" CODE FAMILY PHONE  # append one guest
+```
+
+- Creates all four sheets with the correct header layout from ARCHITECTURE.md.
+- Seeds 8 guests, 3 events, 8 gallery images. RSVP starts header-only.
+- `--add-guest` auto-increments GuestID and rejects duplicate InvitationCodes.
+
+#### Seeded Excel data
+
+| Sheet | Rows | Notes |
+|-------|------|-------|
+| Guests | 8 | Bride/Groom/Couple families + friends/relatives/colleagues |
+| RSVP | 0 | header only — filled at runtime by `POST /api/rsvp` |
+| Events | 3 | Ceremony / Reception / Dinner — all 2026-08-13 @ Sree Ragam |
+| Gallery | 8 | bride, groom, garden, church, bouquet, kiss, flower-field, family |
+
+**Sample invitation codes for testing:**
+`BRIDE001`, `GROOM001`, `LOVE2026`, `FRIEND-ANU`, `FRIEND-TOM`,
+`FAM-NEY-01`, `FAM-TVM-01`, `COL-TECH-01`
+
+Verification is case-insensitive (`love2026` == `LOVE2026`).
+
+#### App configuration (`backend/app.py`)
+
+- CORS origins read from `CORS_ORIGINS` env var (comma-separated), defaults
+  to `http://localhost:3000`. Set production origins (e.g. Vercel) via env.
+- `ExcelManager` singleton is eagerly initialized on `startup` so missing/
+  corrupt workbooks fail fast.
+- Bumped app version to `0.2.0`.
+
+#### Dependency changes (`backend/requirements.txt`)
+
+Added `pydantic-settings==2.7.1`. Existing: `fastapi==0.115.6`,
+`uvicorn[standard]==0.34.0`, `openpyxl==3.1.5`, `pydantic==2.10.4`.
+
+#### File removed
+
+`backend/services/wedding_data.py` — the hardcoded Python data source was
+deleted; events/gallery now come from Excel via `ExcelManager`.
+
+#### Other fix this phase
+
+`frontend/tsconfig.json` — removed deprecated `baseUrl` option (TS 7.0 will
+stop supporting it). `paths` alias `@/*` → `./*` still resolves correctly
+under `"moduleResolution": "bundler"`.
+
+### 8. Frontend ↔ Backend Integration — DONE (this phase)
+
+The RSVP form is now wired to the live backend, and events/gallery are
+switchable to the API via an env flag.
+
+#### `frontend/lib/api.ts` — typed fetch client (NEW)
+
+- Reads `NEXT_PUBLIC_API_URL` (default `http://localhost:8000`).
+- Native `fetch` (no new deps) wrapped in `apiFetch<T>()`: sets JSON headers,
+  applies a 15s `AbortController` timeout, and throws a typed `ApiError`
+  (carrying status + backend `message`) on non-2xx/network errors.
+- Exports `verifyInvitation`, `submitRsvp`, `getEvents`, `getGallery` plus
+  camelCase types mirroring the Pydantic models (`InvitationVerificationResponse`,
+  `RsvpPayload`, `RsvpResponse`, `WeddingEventApi`, `GalleryImageApi`).
+
+#### `frontend/lib/api-data.ts` — merge layer (NEW)
+
+- `useApiData = (NEXT_PUBLIC_USE_API_DATA === "true")` gates the data source.
+- `getEnrichedEvents()` / `getEnrichedGallery()` fetch from the API when
+  enabled and **merge by id** with local `wedding-content.ts` metadata
+  (`location`/`mapUrl` for events, `src`/`alt`/`aspectRatio`/`role` for
+  gallery). The seeded backend `eventId`/`imageId`s match the local `id`s
+  exactly, so the join is clean. Falls back to local data on any failure.
+
+#### `RSVPSection.tsx` — real verify→submit flow
+
+Replaced the `setTimeout` simulation with a two-step flow:
+
+1. **Step 1 (code)**: guest enters invitation code → `POST /api/verify`. On
+   `valid`, prefills `guestName` from the response and advances. On invalid,
+   shows an inline error.
+2. **Step 2 (form)**: reveals the remaining fields. **Added the Attending
+   Yes/No toggle** ("Joyfully Accept" / "Regretfully Decline") that supplies
+   the backend-required `coming` boolean. Selecting "Decline" disables the
+   guest-count and food fields. "Use a different code" returns to step 1.
+
+Submit calls `POST /api/rsvp`, surfacing `saved:true` as a success toast and
+`saved:false`/network errors as an error toast (using the backend `message`).
+Keeps the existing `rsvp-field`/`rsvp-submit` styling.
+
+#### `EventsSection.tsx` & `GallerySection.tsx` — env-flag data source
+
+Switched from static imports to local state seeded with local data (renders
+immediately, SSR-safe) and hydrated via `getEnrichedEvents/Gallery` in a
+`useEffect`. No loading flash; enriched data swaps in when the flag is on.
+
+#### Env files (NEW)
+
+- `frontend/.env.example` — `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_USE_API_DATA`
+- `backend/.env.example` — `CORS_ORIGINS`
+
 ## Verification Already Run
 
 ### Frontend build — PASSING
@@ -228,17 +386,39 @@ Three hydration mismatches were found during `npm run dev` and resolved:
 
 Added `frontend/public/favicon.svg` and linked it in `layout.tsx`.
 
-### Backend Python — compile checked (earlier phase)
+### Backend API — PASSING (this phase)
 
-```text
-backend/app.py
-backend/routes/events.py
-backend/routes/gallery.py
-backend/routes/rsvp.py
-backend/models/rsvp.py
-backend/services/excel_manager.py
-backend/services/wedding_data.py
+Full end-to-end smoke test run against a live uvicorn server
+(`127.0.0.1:8000`). All endpoints returned `200 OK`:
+
+| Check | Result |
+|-------|--------|
+| `GET /health` | `{"status":"ok"}` |
+| `GET /api/events` | 3 events with correct `eventId`/`eventName`/`date`/`time`/`venue` |
+| `GET /api/gallery` | 8 images, correct `imageId`/`title`/`imagePath` |
+| `POST /api/verify` (valid codes) | All 8 seeded codes resolve (`BRIDE001`…`COL-TECH-01`); invalid codes rejected |
+| `POST /api/verify` (case-insensitive) | `love2026`, `Friend-Anu` resolve correctly |
+| `POST /api/rsvp` (new) | Writes normalized row linked by `GuestID` |
+| `POST /api/rsvp` (resubmit same code) | Updates existing row in place — **no duplicates** |
+| `POST /api/rsvp` (invalid code) | Rejected with `saved: false`, no row written |
+| `POST` payload shapes | Both camelCase (`{"invitationCode":...}`) and snake_case (`{"invitation_code":...}`) accepted |
+| OpenAPI docs at `/docs` | `200 OK`, all schemas rendered |
+
+**Physical workbook verified post-test:** RSVP rows land at rows 2–3 (not
+201+) and `GuestID` correctly links the RSVP to the guest. After testing, the
+workbook was re-seeded to a clean state (RSVP header-only).
+
+```bash
+# How to run the backend locally
+cd backend
+.venv\Scripts\python.exe -m uvicorn app:app --reload
+# API at http://127.0.0.1:8000, interactive docs at http://127.0.0.1:8000/docs
 ```
+
+### Frontend typecheck — PASSING (this phase)
+
+`npm run typecheck` (i.e. `tsc --noEmit`) passes clean after the `tsconfig.json`
+`baseUrl` removal.
 
 ## Important Notes
 
@@ -252,63 +432,99 @@ backend/services/wedding_data.py
 - Remote image URLs still depend on Firebase/Google Storage. For production,
   download approved images into `frontend/public/images/` and update
   `frontend/lib/wedding-content.ts`.
-- The RSVP form currently simulates the submit with a `setTimeout`. There is
-  no `frontend/lib/api.ts` yet and no connection to the FastAPI backend.
+- **Backend ↔ frontend are now connected.** `frontend/lib/api.ts` is the typed
+  fetch client (reads `NEXT_PUBLIC_API_URL`). The RSVP form runs a real
+  verify→submit flow; events/gallery switch to the API via
+  `NEXT_PUBLIC_USE_API_DATA`. See "Frontend ↔ Backend Integration" above.
+- **Data shape divergence is resolved** by merging in
+  `frontend/lib/api-data.ts`: the API is the source of truth for dynamic
+  fields (`eventName`/`date`/`venue`, gallery `imagePath`) and local
+  `wedding-content.ts` supplies the richer display metadata (`location`,
+  `mapUrl`, `alt`, `aspectRatio`, `role`) by id. The seeded backend
+  `eventId`/`imageId`s match the local `id`s exactly.
+- **`coming` field** is now collected via an explicit "Will you attend?"
+  Yes/No toggle in the RSVP form ("Joyfully Accept" / "Regretfully Decline").
+  Decline disables the guest-count and food fields.
+- The storage layer is fully encapsulated in `ExcelManager`. A future
+  PostgreSQL/MySQL migration requires rewriting only
+  `backend/services/excel_manager.py` — routes and models stay unchanged.
 
 ## Recommended Next Steps
 
-1. **Implement `ExcelManager`.**
-   Required behavior:
-   - read guests by invitation code
-   - verify invitation code
-   - append/update RSVP data
-   - read events and gallery from workbook
-   - use a lock around writes
+The backend is complete and verified, **and the frontend is now wired to it.**
+The remaining work is seeding real guests, deployment config, and polish.
 
-2. **Connect backend routes to `ExcelManager`.**
-   Replace placeholder returns in `backend/routes/events.py`,
-   `gallery.py`, `rsvp.py`.
+1. ~~**Wire the frontend to the backend (PRIMARY TASK).**~~ — **DONE.**
+   - `frontend/lib/api.ts` (typed fetch client), `frontend/lib/api-data.ts`
+     (env-flag merge layer) created.
+   - `RSVPSection.tsx` now runs verify→submit against the live API.
+   - Attending Yes/No toggle added (supplies `coming`).
+   - Data-shape divergence resolved by merging by id in `api-data.ts`.
+   - To try it locally: start the backend (`uvicorn app:app --reload`), then
+     `cd frontend && npm run dev`. Sample codes: `BRIDE001`, `LOVE2026`,
+     `FRIEND-ANU`.
 
-3. **Add frontend API helper.**
-   Create `frontend/lib/api.ts` and wire `RSVPSection` `handleSubmit` to
-   `POST /api/rsvp`. Add invitation-code verification (`POST /api/verify`)
-   before the rest of the form.
+2. ~~**Add env configuration files.**~~ — **DONE.**
+   - `frontend/.env.example` (`NEXT_PUBLIC_API_URL`,
+     `NEXT_PUBLIC_USE_API_DATA`) and `backend/.env.example`
+     (`CORS_ORIGINS`) added. Copy to `.env.local` / `.env` and set production
+     values at deploy time. Flip `NEXT_PUBLIC_USE_API_DATA=true` once the API
+     is the stable source for events/gallery.
 
-4. **Add CORS/env configuration.**
-   - `frontend/.env.example` — `NEXT_PUBLIC_API_URL`
-   - `backend/.env.example` — `CORS_ORIGINS`
-   Configure CORS in `backend/app.py` to allow the Vercel preview/production
-   origins.
+3. **Seed real guests.**
+   The workbook has 8 sample guests. Add the real guest list via:
+   ```bash
+   cd backend
+   python -m scripts.seed_database --add-guest "Real Name" THEIR_CODE Family "+91 ..."
+   ```
+   (or edit `scripts/seed_database.py` `GUESTS` and re-run a fresh seed).
 
-5. **Run end-to-end smoke checks:**
-   - frontend loads
-   - backend `/health` works
-   - `/api/events` returns data
-   - `/api/gallery` returns data
-   - `/api/verify` validates a sample code such as `LOVE2026`
-   - `/api/rsvp` writes to Excel
+4. **Deploy.**
+   - Frontend → Vercel. Set `NEXT_PUBLIC_API_URL` to the backend URL.
+   - Backend → Render or Railway. Set `CORS_ORIGINS` to the Vercel URL.
+     **Caveat:** the Excel file lives on the backend filesystem. Render's
+     ephemeral filesystem resets on redeploy, so RSVPs would be lost.
+     For production use, either (a) back the workbook with a persistent
+     volume, or (b) migrate `ExcelManager` to PostgreSQL/MySQL (only this
+     one file changes — see "Important Notes").
 
-6. **(Optional) Polish** — download remote images to `public/images/`,
-   add a working music toggle in the nav, seed real guest rows with
-   invitation codes into the `Guests` sheet.
+5. **(Optional) Polish** — download remote images to `public/images/`,
+   add a working music toggle in the nav, add an admin view to read the
+   RSVP sheet.
 
 ## Current Git Status Summary
 
-Branch: `main`. Nothing has been committed since `cf4f1a4 First Commit`.
+Branch: `development` (the default branch `main` is upstream). Recent commits:
 
-Uncommitted source changes (generated folders excluded by `.gitignore`):
+```text
+cb29b456 Refactor NEXT_AGENT_HANDOFF.md to update project structure and frontend migration details
+dec36583 Add Tailwind CSS configuration and TypeScript support
+cf4f1a49 First Commit
+```
 
-- new `.gitignore`
-- modified `frontend/main.html` (earlier phase)
-- new `READ_ME.md`
-- new `backend/` (earlier phase)
-- new `frontend/app/{globals.css, layout.tsx, page.tsx}` (updated this phase)
-- new `frontend/components/*.tsx` (this phase — 11 files)
-- new `frontend/lib/{animations, particles, wedding-data}.ts` (this phase)
-- new `frontend/public/favicon.svg` (this phase)
-- new `frontend/postcss.config.js` (this phase)
-- new `frontend/{docs, reference, styles, package.json, tailwind.config.ts,
-  tsconfig.json, next.config.ts, next-env.d.ts}` (earlier phase)
+**Uncommitted changes this phase** (generated folders excluded by `.gitignore`):
+
+Backend (new/modified):
+- modified `backend/app.py` — env-based CORS, eager ExcelManager init, v0.2.0
+- rewritten `backend/services/excel_manager.py` — full openpyxl read/write
+- modified `backend/services/__init__.py` — singleton factory
+- new `backend/models/events.py`, `backend/models/gallery.py`
+- rewritten `backend/models/rsvp.py` — aliases + response models
+- modified `backend/models/__init__.py` — re-exports
+- modified `backend/routes/{events,gallery,rsvp}.py` — wired to ExcelManager
+- new `backend/scripts/seed_database.py`, `backend/scripts/__init__.py`
+- modified `backend/requirements.txt` — added `pydantic-settings`
+- deleted `backend/services/wedding_data.py`
+- modified `backend/excel/wedding_database.xlsx` — re-seeded clean
+- new `backend/.env.example` — documented `CORS_ORIGINS`
+
+Frontend (this phase):
+- modified `frontend/tsconfig.json` — removed deprecated `baseUrl`
+- new `frontend/lib/api.ts` — typed fetch client (verify/rsvp/events/gallery)
+- new `frontend/lib/api-data.ts` — env-flag merge layer for events/gallery
+- rewritten `frontend/components/RSVPSection.tsx` — real verify→submit flow + attending toggle
+- modified `frontend/components/EventsSection.tsx`, `GallerySection.tsx` — env-flag data source
+- new `frontend/.env.example` — `NEXT_PUBLIC_API_URL` + `NEXT_PUBLIC_USE_API_DATA`
 
 Do not commit generated folders (`frontend/.next/`, `frontend/node_modules/`,
-`backend/**/__pycache__/`) — they are now gitignored.
+`backend/**/__pycache__/`, `backend/.venv/`) — they are gitignored.

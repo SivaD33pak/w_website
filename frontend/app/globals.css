@@ -22,7 +22,8 @@ body {
 
 /* ── Navigation ─────────────────────────────────────────── */
 .site-nav {
-  height: 90px;
+  /* Responsive: 60px on small mobile → 90px on desktop */
+  height: clamp(60px, 10vw, 90px);
   background: rgba(14, 16, 38, 0.35);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
@@ -118,7 +119,8 @@ body {
 }
 
 .nav-links {
-  gap: 48px;
+  /* Responsive gap: 20px on tablet → 48px on desktop */
+  gap: clamp(20px, 4vw, 48px);
 }
 
 /* ── Hero Section ────────────────────────────────────────── */
@@ -126,14 +128,17 @@ body {
   min-height: 100vh;
 }
 
-.hero-layer-0 { z-index: 0; }
-.hero-layer-1 { z-index: 1; }
-.hero-layer-2 { z-index: 2; }
-.hero-layer-3 { z-index: 3; }
+/* GPU-compositing hint: promotes each layer to its own compositing layer
+   so cursor/gyro transforms don't trigger a layout repaint cascade. */
+.hero-layer-0 { z-index: 0; will-change: transform; }
+.hero-layer-1 { z-index: 1; will-change: transform; }
+.hero-layer-2 { z-index: 2; will-change: transform; }
+.hero-layer-3 { z-index: 3; will-change: transform; }
 
 .hero-content {
-  padding-top: 110px;
-  padding-bottom: 70px;
+  /* Responsive padding: less on mobile, more on desktop */
+  padding-top: clamp(70px, 12vw, 110px);
+  padding-bottom: clamp(40px, 6vw, 70px);
   z-index: 4;
 }
 
@@ -262,7 +267,8 @@ body {
   font-size: 11px;
   opacity: 0.55;
   line-height: 1.65;
-  max-width: 145px;
+  /* Responsive max-width: narrower on mobile */
+  max-width: clamp(100px, 40vw, 145px);
   margin-top: 4px;
 }
 
@@ -283,34 +289,35 @@ body {
 }
 
 /* ── Sections ────────────────────────────────────────────── */
+/* Responsive vertical padding: 48px mobile → 80px desktop */
 .section-paper {
   background: #f8eee7;
-  padding-top: 80px;
-  padding-bottom: 80px;
+  padding-top: clamp(48px, 8vw, 80px);
+  padding-bottom: clamp(48px, 8vw, 80px);
 }
 
 .section-countdown {
   background: linear-gradient(180deg, #181b3a 0%, #2c1e3a 50%, #181b3a 100%);
-  padding-top: 72px;
-  padding-bottom: 72px;
+  padding-top: clamp(40px, 7vw, 72px);
+  padding-bottom: clamp(40px, 7vw, 72px);
 }
 
 .section-verse {
   background: linear-gradient(180deg, #181b3a 0%, #2c1e3a 40%, #3d1e2a 80%, #2c1e3a 100%);
-  padding-top: 80px;
-  padding-bottom: 80px;
+  padding-top: clamp(48px, 8vw, 80px);
+  padding-bottom: clamp(48px, 8vw, 80px);
 }
 
 .section-rsvp {
   background: #f8eee7;
-  padding-top: 80px;
-  padding-bottom: 80px;
+  padding-top: clamp(48px, 8vw, 80px);
+  padding-bottom: clamp(48px, 8vw, 80px);
 }
 
 .section-footer {
   background: linear-gradient(180deg, #181b3a 0%, #0d0f26 100%);
-  padding-top: 60px;
-  padding-bottom: 40px;
+  padding-top: clamp(36px, 6vw, 60px);
+  padding-bottom: clamp(24px, 4vw, 40px);
 }
 
 .section-eyebrow {
@@ -367,7 +374,8 @@ body {
 .event-card {
   border: 1.5px solid #d8b26e;
   box-shadow: 0 4px 24px rgba(216, 178, 110, 0.15);
-  min-width: 260px;
+  /* Responsive min-width: narrower on mobile */
+  min-width: clamp(200px, 50vw, 260px);
   background: rgba(248, 238, 231, 0.95);
   border-radius: 16px;
 }
@@ -398,7 +406,8 @@ body {
   color: #3a2d2d;
   opacity: 0.65;
   line-height: 1.6;
-  max-width: 180px;
+  /* Responsive max-width */
+  max-width: clamp(120px, 35vw, 180px);
 }
 
 .event-dot {
@@ -509,14 +518,16 @@ body {
 
 /* ── Footer ─────────────────────────────────────────────── */
 .footer-divider {
-  width: 300px;
+  /* Never wider than 80% of parent — prevents overflow on narrow screens */
+  width: min(300px, 80%);
   height: 1px;
   background: linear-gradient(to right, transparent, #d8b26e, transparent);
   box-shadow: 0 0 8px rgba(216, 178, 110, 0.5);
 }
 
 .footer-title {
-  font-size: 32px;
+  /* Responsive font size */
+  font-size: clamp(24px, 5vw, 32px);
   font-weight: 300;
   opacity: 0.9;
 }
@@ -556,6 +567,13 @@ body {
 }
 
 /* ── Scrollbar ───────────────────────────────────────────── */
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(216, 178, 110, 0.3) #181b3a;
+}
+
+/* Webkit / Blink (Chrome, Safari, Edge) */
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -571,4 +589,22 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(216, 178, 110, 0.5);
+}
+
+/* ── Responsive overrides (mobile, < 640px) ─────────────────────────────── */
+@media (max-width: 639px) {
+  /* Hero info card: stack 3 segments vertically on mobile */
+  .hero-card {
+    flex-wrap: wrap;
+  }
+
+  .hero-card-segment {
+    /* Side-by-side dividers become horizontal when stacked */
+    border-right: none;
+    border-bottom: 1px solid rgba(216, 178, 110, 0.22);
+  }
+
+  .hero-card-segment:last-child {
+    border-bottom: none;
+  }
 }

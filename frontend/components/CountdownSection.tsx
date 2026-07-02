@@ -49,7 +49,7 @@ function CountdownUnit({
 }) {
   return (
     <div className="flex items-center">
-      <div className="flex flex-col items-center px-6 md:px-14">
+      <div className="flex flex-col items-center px-4 sm:px-6 md:px-14">
         <motion.span
           variants={digitFlip}
           initial="initial"
@@ -102,23 +102,25 @@ export default function CountdownSection() {
   useEffect(() => {
     if (!sectionRef.current) return;
 
-    gsap.fromTo(
-      sectionRef.current,
-      { opacity: 0.8 },
-      {
-        opacity: 1,
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top 80%",
-          end: "center center",
-          scrub: true,
-        },
-      }
-    );
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        sectionRef.current,
+        { opacity: 0.8 },
+        {
+          opacity: 1,
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top 80%",
+            end: "center center",
+            scrub: true,
+          },
+        }
+      );
+    }, sectionRef);
 
-    return () => {
-      ScrollTrigger.getAll().forEach((t) => t.kill());
-    };
+    // Scoped cleanup: only reverts animations/ScrollTriggers created in this
+    // context, leaving other sections' triggers intact.
+    return () => ctx.revert();
   }, []);
 
   return (
@@ -181,7 +183,7 @@ export default function CountdownSection() {
           />
         </div>
 
-        <div className="flex items-center gap-0" suppressHydrationWarning>
+        <div className="flex flex-wrap items-center justify-center gap-y-4" suppressHydrationWarning>
           <CountdownUnit value={mounted ? timeLeft.days : 0} label="DAYS" isLast={false} />
           <CountdownUnit value={mounted ? timeLeft.hours : 0} label="HOURS" isLast={false} />
           <CountdownUnit value={mounted ? timeLeft.minutes : 0} label="MINUTES" isLast={false} />

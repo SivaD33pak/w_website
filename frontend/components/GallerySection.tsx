@@ -1,9 +1,13 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { images } from "@/lib/wedding-content";
+import { getEnrichedGallery, type LocalImage } from "@/lib/api-data";
 import { motion } from "framer-motion";
 import { fadeInUp, staggerContainer, staggerItem } from "@/lib/animations";
+
+const localGallery = images.filter((img) => img.role === "gallery");
 
 function HeartSVG({ size = 10 }: { size?: number }) {
   return (
@@ -33,9 +37,21 @@ function ZoomIcon() {
   );
 }
 
-const galleryImages = images.filter((img) => img.role === "gallery");
-
 export default function GallerySection() {
+  // Seed with local data so SSR + first paint render immediately, then swap in
+  // the API-merged data when NEXT_PUBLIC_USE_API_DATA is enabled.
+  const [gallery, setGallery] = useState<LocalImage[]>([...localGallery]);
+
+  useEffect(() => {
+    let active = true;
+    getEnrichedGallery().then((data) => {
+      if (active) setGallery(data);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   return (
     <section
       id="gallery"
@@ -73,16 +89,16 @@ export default function GallerySection() {
         </div>
       </motion.div>
 
-      {/* Masonry grid */}
+      {/* Masonry grid — 1 column on mobile, 2 on tablet, 3 on desktop */}
       <motion.div
-        className="relative px-6 md:px-16"
-        style={{ columns: "2", columnGap: "16px" }}
+        className="relative px-4 sm:px-6 md:px-16 columns-1 sm:columns-2 lg:columns-3"
+        style={{ columnGap: "16px" }}
         variants={staggerContainer}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-50px" }}
       >
-        {galleryImages.map((img) => (
+        {gallery.map((img) => (
           <motion.div
             key={img.id}
             className="gallery-tile mb-4 overflow-hidden rounded-lg relative"
@@ -101,7 +117,7 @@ export default function GallerySection() {
                 width={400}
                 height={img.aspectRatio === "3:4" ? 533 : 300}
                 className="w-full object-cover"
-                sizes="(max-width: 768px) 50vw, 25vw"
+                sizes="(max-width: 639px) 90vw, (max-width: 1023px) 48vw, 31vw"
               />
             </div>
             <div className="gallery-overlay absolute inset-0 flex items-center justify-center">

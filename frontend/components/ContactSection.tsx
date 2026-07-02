@@ -20,8 +20,8 @@ export default function ContactSection() {
       className="relative w-full overflow-hidden"
       style={{
         background: "linear-gradient(180deg, #f8eee7 0%, #181b3a 100%)",
-        paddingTop: 80,
-        paddingBottom: 80,
+        paddingTop: "clamp(48px, 8vw, 80px)",
+        paddingBottom: "clamp(48px, 8vw, 80px)",
       }}
     >
       <motion.div

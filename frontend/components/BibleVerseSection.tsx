@@ -1,10 +1,12 @@
 "use client";
 
+import { useRef } from "react";
 import Image from "next/image";
 import { bibleVerse, images } from "@/lib/wedding-content";
 import { motion } from "framer-motion";
 import { fadeInUp } from "@/lib/animations";
 import { generateParticles } from "@/lib/particles";
+import { useParallax } from "@/lib/use-parallax";
 
 function HeartSVG({ size = 10 }: { size?: number }) {
   return (
@@ -20,8 +22,25 @@ const candleImg = decorativeImages.find((img) => img.id === "decorative-candle")
 const bibleImg = decorativeImages.find((img) => img.id === "decorative-bible");
 
 export default function BibleVerseSection() {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const crossLeftRef = useRef<HTMLDivElement>(null);
+  const crossRightRef = useRef<HTMLDivElement>(null);
+  const candleLeftRef = useRef<HTMLDivElement>(null);
+  const candleRightRef = useRef<HTMLDivElement>(null);
+
+  // Subtle cursor/gyro drift on the decorative images.
+  // These elements are `hidden md:block` — on small mobile the refs will be
+  // null and the hook safely skips them. On tablets/desktop they'll float.
+  useParallax(sectionRef, [
+    { ref: crossLeftRef, speedX: 8, speedY: 6 },
+    { ref: crossRightRef, speedX: -8, speedY: 6 },
+    { ref: candleLeftRef, speedX: 5, speedY: 4 },
+    { ref: candleRightRef, speedX: -5, speedY: 4 },
+  ], { smoothing: 0.06 });
+
   return (
     <section
+      ref={sectionRef}
       id="bible-verse"
       className="section-verse relative w-full overflow-hidden flex flex-col items-center justify-center"
     >
@@ -42,14 +61,14 @@ export default function BibleVerseSection() {
         ))}
       </div>
 
-      {/* Radial glow */}
+      {/* Radial glow — constrained so it never overflows the viewport */}
       <div
         className="absolute"
         style={{
           top: "30%",
           left: "50%",
           transform: "translateX(-50%)",
-          width: 600,
+          width: "min(600px, 90%)",
           height: 300,
           background:
             "radial-gradient(ellipse, rgba(216, 178, 110, 0.08) 0%, transparent 70%)",
@@ -59,7 +78,7 @@ export default function BibleVerseSection() {
       {/* Decorative crosses */}
       {crossImg && (
         <>
-          <div className="absolute left-0 top-0 opacity-20 hidden md:block">
+          <div ref={crossLeftRef} className="absolute left-0 top-0 opacity-20 hidden md:block">
             <Image
               src={crossImg.src}
               alt={crossImg.alt}
@@ -69,6 +88,7 @@ export default function BibleVerseSection() {
             />
           </div>
           <div
+            ref={crossRightRef}
             className="absolute right-0 top-0 opacity-20 hidden md:block"
             style={{ transform: "scaleX(-1)" }}
           >
@@ -86,7 +106,7 @@ export default function BibleVerseSection() {
       {/* Candles */}
       {candleImg && (
         <>
-          <div className="absolute bottom-8 left-24 opacity-50 hidden md:block">
+          <div ref={candleLeftRef} className="absolute bottom-8 left-24 opacity-50 hidden md:block">
             <Image
               src={candleImg.src}
               alt={candleImg.alt}
@@ -95,7 +115,7 @@ export default function BibleVerseSection() {
               className="w-10 h-32 object-contain"
             />
           </div>
-          <div className="absolute bottom-8 right-24 opacity-50 hidden md:block">
+          <div ref={candleRightRef} className="absolute bottom-8 right-24 opacity-50 hidden md:block">
             <Image
               src={candleImg.src}
               alt={candleImg.alt}
@@ -121,7 +141,8 @@ export default function BibleVerseSection() {
             alt={bibleImg.alt}
             width={256}
             height={144}
-            className="w-64 h-36 object-contain"
+            className="w-48 sm:w-64 h-auto object-contain"
+            sizes="(max-width: 639px) 192px, 256px"
           />
         </motion.div>
       )}
