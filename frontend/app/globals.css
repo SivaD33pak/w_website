@@ -593,9 +593,12 @@ body {
 
 /* ── Responsive overrides (mobile, < 640px) ─────────────────────────────── */
 @media (max-width: 639px) {
-  /* Hero info card: stack 3 segments vertically on mobile */
+  /* Hero info card: stack the date + venue segments vertically on mobile so
+     the long venue text never overflows or squishes the card out of shape. */
   .hero-card {
-    flex-wrap: wrap;
+    flex-direction: column;
+    width: 100%;
+    max-width: 320px;
   }
 
   .hero-card-segment {
@@ -606,5 +609,10 @@ body {
 
   .hero-card-segment:last-child {
     border-bottom: none;
+  }
+
+  /* When stacked vertically there is room to let the address breathe. */
+  .hero-meta-venue-muted {
+    max-width: 240px;
   }
 }
