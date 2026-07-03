@@ -94,40 +94,26 @@ async function apiFetch<T>(
 // RSVP types — mirror backend/models/rsvp.py
 // ---------------------------------------------------------------------------
 
-/** POST /api/verify request body. */
-export interface InvitationVerificationRequest {
-  invitationCode: string;
-}
-
-/** POST /api/verify response. */
-export interface InvitationVerificationResponse {
-  valid: boolean;
-  guestId: string | null;
-  guestName: string | null;
-  message: string;
-}
-
 /** POST /api/rsvp request body. `coming` is the attending yes/no toggle. */
 export interface RsvpPayload {
-  invitationCode: string;
-  guestName: string;
+  fullName: string;
+  place: string;
+  whatsappNumber: string;
+  side: "bride" | "groom";
+  relation: "friend" | "family";
   coming: boolean;
-  adults: number;
-  children: number;
-  foodPreference: string | null;
-  message: string | null;
+  guests: number;
 }
 
 /** POST /api/rsvp response. */
 export interface RsvpResponse {
   saved: boolean;
-  guestId: string | null;
   guestName: string | null;
   message: string;
 }
 
 // ---------------------------------------------------------------------------
-// Events & Gallery types — mirror backend/models/{events,gallery}.py
+// Events types — mirror backend/models/events.py
 // ---------------------------------------------------------------------------
 
 /** GET /api/events item. */
@@ -139,26 +125,9 @@ export interface WeddingEventApi {
   venue: string;
 }
 
-/** GET /api/gallery item. */
-export interface GalleryImageApi {
-  imageId: string;
-  title: string;
-  imagePath: string;
-}
-
 // ---------------------------------------------------------------------------
 // Endpoint functions
 // ---------------------------------------------------------------------------
-
-/** POST /api/verify — validate an invitation code against the guest list. */
-export function verifyInvitation(
-  invitationCode: string,
-): Promise<InvitationVerificationResponse> {
-  return apiFetch<InvitationVerificationResponse>("/api/verify", {
-    method: "POST",
-    body: JSON.stringify({ invitationCode } satisfies InvitationVerificationRequest),
-  });
-}
 
 /** POST /api/rsvp — submit (or update) an RSVP entry. */
 export function submitRsvp(payload: RsvpPayload): Promise<RsvpResponse> {
@@ -171,9 +140,4 @@ export function submitRsvp(payload: RsvpPayload): Promise<RsvpResponse> {
 /** GET /api/events — list all wedding events. */
 export function getEvents(): Promise<WeddingEventApi[]> {
   return apiFetch<WeddingEventApi[]>("/api/events");
-}
-
-/** GET /api/gallery — list all gallery images. */
-export function getGallery(): Promise<GalleryImageApi[]> {
-  return apiFetch<GalleryImageApi[]>("/api/gallery");
 }

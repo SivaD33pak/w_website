@@ -5,9 +5,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from routes.events import router as events_router
-from routes.gallery import router as gallery_router
 from routes.rsvp import router as rsvp_router
-from services import get_excel_manager
+from services import get_excel_manager, get_google_sheets_manager
 
 logging.basicConfig(
     level=logging.INFO,
@@ -35,7 +34,6 @@ app.add_middleware(
 # Routers
 # ---------------------------------------------------------------------------
 app.include_router(events_router, prefix="/api", tags=["events"])
-app.include_router(gallery_router, prefix="/api", tags=["gallery"])
 app.include_router(rsvp_router, prefix="/api", tags=["rsvp"])
 
 
@@ -46,9 +44,9 @@ app.include_router(rsvp_router, prefix="/api", tags=["rsvp"])
 
 @app.on_event("startup")
 def on_startup() -> None:
-    # Eagerly initialise the ExcelManager singleton so we fail fast if the
-    # workbook is missing or corrupt.
+    # Eagerly initialise singletons so we fail fast if something is missing.
     get_excel_manager()
+    get_google_sheets_manager()
     logging.getLogger(__name__).info(
         "Application started — CORS origins: %s", cors_origins
     )

@@ -4,7 +4,6 @@ import TornPaper from "@/components/TornPaper";
 import OurStorySection from "@/components/OurStorySection";
 import CountdownSection from "@/components/CountdownSection";
 import EventsSection from "@/components/EventsSection";
-import GallerySection from "@/components/GallerySection";
 import BibleVerseSection from "@/components/BibleVerseSection";
 import RSVPSection from "@/components/RSVPSection";
 import ContactSection from "@/components/ContactSection";
@@ -28,8 +27,6 @@ export default function HomePage() {
       <TornPaper />
 
       <EventsSection />
-
-      <GallerySection />
 
       <BibleVerseSection />
 
