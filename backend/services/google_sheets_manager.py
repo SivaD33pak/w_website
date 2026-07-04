@@ -107,11 +107,7 @@ class GoogleSheetsManager:
                 if _normalize_whatsapp(existing) == whatsapp_number:
                     # Update the existing row.
                     for col_offset, value in enumerate(row_values):
-                        self._worksheet.update(
-                            value=value,
-                            row_number=idx,
-                            col_number=col_offset + 1,
-                        )
+                        self._worksheet.update_cell(idx, col_offset + 1, value)
                     updated = True
                     break
 
