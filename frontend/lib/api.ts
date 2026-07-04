@@ -9,9 +9,12 @@
  * the server runtime and modern browsers.
  */
 
-// Resolved once at module load. Defaults to the local FastAPI dev server.
+// Resolved once at module load.
+//
+// In the browser, an empty base URL means "use this site's origin", so requests
+// go through Next rewrites instead of asking a visitor's machine for localhost.
 export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, "") || "http://localhost:8000";
+  process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, "") || "";
 
 /** Request timeout in milliseconds for every API call. */
 const REQUEST_TIMEOUT_MS = 15_000;
