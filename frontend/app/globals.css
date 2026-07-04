@@ -133,7 +133,22 @@ body {
 .hero-layer-0 { z-index: 0; will-change: transform; }
 .hero-layer-1 { z-index: 1; will-change: transform; }
 .hero-layer-2 { z-index: 2; will-change: transform; }
-.hero-layer-3 { z-index: 3; will-change: transform; }
+
+/* Decorative floral corners (front-most, above background layers and dark
+   overlay, below the hero text content at z-index 4). The right piece mirrors
+   the inner image (not the parallax wrapper) so GSAP transforms stay intact. */
+.hero-corner-flower {
+  position: absolute;
+  bottom: 0;
+  width: clamp(180px, 28vw, 420px);
+  aspect-ratio: 4 / 3;
+  z-index: 3;
+  will-change: transform;
+  pointer-events: none;
+}
+.hero-corner-flower-left  { left: 0; }
+.hero-corner-flower-right { right: 0; }
+.hero-corner-flower-right img { transform: scaleX(-1); }
 
 .hero-content {
   /* Responsive padding: less on mobile, more on desktop */

@@ -37,17 +37,20 @@ export default function HeroSection() {
   const layer0Ref = useRef<HTMLDivElement>(null);
   const layer1Ref = useRef<HTMLDivElement>(null);
   const layer2Ref = useRef<HTMLDivElement>(null);
-  const layer3Ref = useRef<HTMLDivElement>(null);
+  // Decorative corner flowers (front-most floral elements), wired into the
+  // same scroll + cursor/gyro parallax as the background layers below.
+  const flowerLeftRef = useRef<HTMLDivElement>(null);
+  const flowerRightRef = useRef<HTMLDivElement>(null);
   const layerRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
     if (!sectionRef.current) return;
 
     // Populate the array from the individual refs for the scroll parallax loop.
-    layerRefs.current = [layer0Ref.current, layer1Ref.current, layer2Ref.current, layer3Ref.current];
+    layerRefs.current = [layer0Ref.current, layer1Ref.current, layer2Ref.current];
 
     const layers = layerRefs.current.filter(Boolean);
-    const speeds = [0, 0.15, 0.25, 0.35];
+    const speeds = [0, 0.15, 0.25];
 
     // gsap.context scopes all animations + ScrollTriggers created inside it,
     // so ctx.revert() only kills THIS section's effects.
@@ -55,6 +58,21 @@ export default function HeroSection() {
       layers.forEach((layer, i) => {
         gsap.to(layer!, {
           yPercent: speeds[i] * 100,
+          ease: "none",
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top top",
+            end: "bottom top",
+            scrub: true,
+          },
+        });
+      });
+
+      // Corner flowers share the front-most layer's scroll speed (0.35).
+      [flowerLeftRef.current, flowerRightRef.current].forEach((el) => {
+        if (!el) return;
+        gsap.to(el, {
+          yPercent: 0.35 * 100,
           ease: "none",
           scrollTrigger: {
             trigger: sectionRef.current,
@@ -77,15 +95,16 @@ export default function HeroSection() {
   const { needsPermission, requestGyroPermission } = useParallax(
     sectionRef,
     [
-      { ref: layer0Ref, speedX: 0, speedY: 0 },      // sky:        fixed base
-      { ref: layer1Ref, speedX: -18, speedY: -14 },  // mountain:   slow drift
-      { ref: layer2Ref, speedX: -32, speedY: -24 },  // church:     moderate
-      { ref: layer3Ref, speedX: -50, speedY: -38 },  // blossoms:   fastest (front)
+      { ref: layer0Ref, speedX: 0, speedY: 0 },      // sky:          fixed base
+      { ref: layer1Ref, speedX: -18, speedY: -14 },  // mountain:     slow drift
+      { ref: layer2Ref, speedX: -32, speedY: -24 },  // church:       moderate
+      { ref: flowerLeftRef, speedX: -50, speedY: -38 },   // flowers:  fastest (front)
+      { ref: flowerRightRef, speedX: -50, speedY: -38 },  // flowers:  fastest (front)
     ],
     { smoothing: 0.08 },
   );
 
-  const allLayerRefs = [layer0Ref, layer1Ref, layer2Ref, layer3Ref];
+  const allLayerRefs = [layer0Ref, layer1Ref, layer2Ref];
 
   return (
     <section
@@ -107,8 +126,7 @@ export default function HeroSection() {
           /* inset buffer per layer (must exceed max parallax offset):
              layer 0: ~0px move  → -6%
              layer 1: ~18px move → -8%
-             layer 2: ~32px move → -10%
-             layer 3: ~50px move → -12% */
+             layer 2: ~32px move → -10% */
           style={{ inset: `${-6 - i * 2}%` }}
         >
           <Image
@@ -130,6 +148,28 @@ export default function HeroSection() {
             "linear-gradient(180deg, rgba(24,27,58,0.4) 0%, rgba(24,27,58,0.1) 40%, rgba(24,27,58,0.5) 100%)",
         }}
       />
+
+      {/* Decorative floral corners (front-most). The right piece mirrors the
+          image via CSS so both sides stay symmetric. Drawn above the dark
+          overlay so the flowers stay vivid, below the hero text content. */}
+      <div ref={flowerLeftRef} className="hero-corner-flower hero-corner-flower-left">
+        <Image
+          src="/hero/layer-4-daisies.png"
+          alt="Floral decoration"
+          fill
+          className="object-contain object-bottom"
+          sizes="(max-width: 768px) 280px, 420px"
+        />
+      </div>
+      <div ref={flowerRightRef} className="hero-corner-flower hero-corner-flower-right">
+        <Image
+          src="/hero/layer-4-daisies.png"
+          alt="Floral decoration"
+          fill
+          className="object-contain object-bottom"
+          sizes="(max-width: 768px) 280px, 420px"
+        />
+      </div>
 
       {/* Content */}
       <div className="hero-content relative flex flex-col items-center text-center">

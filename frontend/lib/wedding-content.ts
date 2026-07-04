@@ -142,15 +142,6 @@ export const images = [
     src: "/hero/layer-2-church.png",
   },
   {
-    id: "hero-blossoms",
-    title: "Cherry blossom branches",
-    alt: "Cherry blossom branches",
-    aspectRatio: "16:9",
-    role: "hero",
-    source: "local",
-    src: "/hero/layer-3-blossoms.png",
-  },
-  {
     id: "story-couple-portrait",
     title: "Couple portrait",
     alt: "Indian bride and groom in a romantic portrait",
