@@ -85,7 +85,7 @@ export default function HeroSection() {
 
         {/* Script "and" — generous spacing around it for editorial breathing room */}
         <motion.div
-          className="my-7 flex items-center justify-center gap-8"
+          className="my-3 flex items-center justify-center gap-8"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 0.8 }}
@@ -106,8 +106,8 @@ export default function HeroSection() {
         </motion.h1>
 
         {/* Bible verse — extra top margin for luxury separation */}
-        <motion.div
-          className="mt-16 px-6"
+          <motion.div
+          className="mt-8 px-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 1.3 }}

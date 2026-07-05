@@ -199,7 +199,7 @@ body {
   text-shadow:
     0 0 32px rgba(247, 223, 180, 0.30),
     0 0 64px rgba(247, 223, 180, 0.14);
-  margin-top: clamp(10px, 2vw, 22px);
+  margin-top: clamp(4px, 0.8vw, 10px);
 }
 
 /* Hairline flanking the script "and". */
