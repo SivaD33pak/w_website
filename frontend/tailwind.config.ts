@@ -23,6 +23,7 @@ const config: Config = {
         headings: ["PT Serif", "serif"],
         hero: ['"Cormorant Garamond"', "serif"],
         "hero-script": ['"Allura"', "cursive"],
+        "hero-names": ['"Great Vibes"', "cursive"],
         "hero-caption": ['"Montserrat"', "sans-serif"],
       },
     },

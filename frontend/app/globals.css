@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /* ── Google Fonts ────────────────────────────────────────── */
-@import url("https://fonts.googleapis.com/css2?family=Allura&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Inter:wght@100;200;300;400;500;600;700;800;900&family=Montserrat:wght@100;200;300;400;500;600;700&family=PT+Serif:ital,wght@0,400;0,700;1,400&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Allura&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Great+Vibes&family=Inter:wght@100;200;300;400;500;600;700;800;900&family=Montserrat:wght@100;200;300;400;500;600;700&family=PT+Serif:ital,wght@0,400;0,700;1,400&display=swap");
 
 /* ── Base ──────────────────────────────────────────────── */
 :root {
@@ -187,13 +187,14 @@ body {
   );
 }
 
-/* ── Names: Bride & Groom (Cormorant Garamond, 500) ─────── */
+/* ── Names: Bride & Groom (Great Vibes script, theme gold) ── */
 .hero-name {
-  font-weight: 500;
-  font-size: clamp(44px, 8.5vw, 86px);
-  line-height: 1.08;
-  letter-spacing: 0.008em;
-  color: var(--hero-primary);
+  font-family: "Great Vibes", cursive;
+  font-weight: 400;
+  font-size: clamp(64px, 11vw, 128px);
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+  color: #d8b26e; /* theme gold */
   /* Soft warm lantern glow — not a dark shadow. Two layered halos give
      the text a naturally illuminated, candlelit quality. */
   text-shadow:
@@ -217,13 +218,14 @@ body {
   transform: scaleX(-1);
 }
 
-/* ── Script "and" (Allura) — ~40% of name size, champagne ── */
+/* ── Script "and" (Great Vibes, rose gold) ──────────────── */
 .hero-and-script {
+  font-family: "Great Vibes", cursive;
   font-weight: 400;
-  font-size: clamp(28px, 4vw, 40px);
+  font-size: clamp(40px, 6vw, 64px);
   line-height: 1;
-  color: var(--hero-gold);
-  text-shadow: 0 0 24px rgba(217, 177, 109, 0.22);
+  color: #c98fa2; /* theme rose */
+  text-shadow: 0 0 24px rgba(201, 143, 162, 0.28);
 }
 
 /* ── Bible verse (Cormorant Garamond Italic) ────────────── */

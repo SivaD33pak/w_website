@@ -75,7 +75,7 @@ export default function HeroSection() {
 
         {/* Bride name */}
         <motion.h1
-          className="hero-name font-hero text-hero-primary"
+          className="hero-name font-hero-names"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.5 }}
@@ -91,13 +91,13 @@ export default function HeroSection() {
           transition={{ duration: 1, delay: 0.8 }}
         >
           <div className="hero-name-line" />
-          <span className="hero-and-script font-hero-script text-gold">and</span>
+          <span className="hero-and-script font-hero-names">and</span>
           <div className="hero-name-line" />
         </motion.div>
 
         {/* Groom name */}
         <motion.h1
-          className="hero-name font-hero text-hero-primary"
+          className="hero-name font-hero-names"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.95 }}
