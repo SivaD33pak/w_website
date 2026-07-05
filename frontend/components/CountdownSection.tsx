@@ -161,6 +161,20 @@ export default function CountdownSection() {
         whileInView="visible"
         viewport={{ once: true, margin: "-50px" }}
       >
+        {/* Elegant wedding date display */}
+        <div className="countdown-date-display flex flex-col items-center mb-10">
+          <span className="countdown-date-day font-headings text-foreground">
+            {weddingDate.day}
+          </span>
+          <div className="countdown-date-divider" />
+          <span className="countdown-date-month font-body text-gold tracking-widest uppercase">
+            {weddingDate.monthYear}
+          </span>
+          <span className="countdown-date-weekday font-body text-foreground tracking-widest uppercase">
+            {weddingDate.weekday}
+          </span>
+        </div>
+
         <p className="section-eyebrow-muted section-eyebrow font-body text-foreground text-xs tracking-widest uppercase mb-2">
           COUNTING DOWN TO OUR BIG DAY
         </p>
