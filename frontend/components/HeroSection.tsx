@@ -158,7 +158,7 @@ export default function HeroSection() {
           alt="Floral decoration"
           fill
           className="object-contain object-bottom"
-          sizes="(max-width: 768px) 280px, 420px"
+          sizes="(max-width: 640px) 220px, 520px"
         />
       </div>
       <div ref={flowerRightRef} className="hero-corner-flower hero-corner-flower-right">
@@ -167,7 +167,7 @@ export default function HeroSection() {
           alt="Floral decoration"
           fill
           className="object-contain object-bottom"
-          sizes="(max-width: 768px) 280px, 420px"
+          sizes="(max-width: 640px) 220px, 520px"
         />
       </div>
 
