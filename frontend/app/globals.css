@@ -327,14 +327,21 @@ body {
 
 /* ── Golden Ornamental Frame ─────────────────────────── */
 /* Frame fills the entire section edge-to-edge — no gaps.
-   Position: relative is set inline in CountdownSection.tsx. */
+   Triple-layered border for a thick, regal, magical look. */
 .golden-frame {
-  border: 1.5px solid rgba(216, 178, 110, 0.45);
+  /* Triple border using box-shadow layering:
+     - outer: thick gold halo
+     - mid:   dark inset gap (creates depth between layers)
+     - inner: gold edge */
+  border: 2.5px solid rgba(216, 178, 110, 0.75);
   box-shadow:
-    0 0 20px rgba(216, 178, 110, 0.08),
-    inset 0 0 30px rgba(216, 178, 110, 0.04);
-  /* Soft outer aura */
-  filter: drop-shadow(0 0 40px rgba(216, 178, 110, 0.10));
+    0 0 0 4px rgba(24, 27, 58, 0.6),
+    0 0 0 5px rgba(216, 178, 110, 0.35),
+    0 0 0 9px rgba(24, 27, 58, 0.4),
+    0 0 0 10px rgba(216, 178, 110, 0.18),
+    0 0 32px rgba(216, 178, 110, 0.18),
+    inset 0 0 40px rgba(216, 178, 110, 0.06);
+  filter: drop-shadow(0 0 50px rgba(216, 178, 110, 0.15));
 }
 
 /* Corner ornaments — flush against the section edges */
@@ -343,8 +350,8 @@ body {
 .golden-corner-bl,
 .golden-corner-br {
   position: absolute;
-  width: clamp(48px, 8vw, 80px);
-  height: clamp(48px, 8vw, 80px);
+  width: clamp(64px, 11vw, 120px);
+  height: clamp(64px, 11vw, 120px);
   z-index: 2;
 }
 .golden-corner-tl { top: 0; left: 0; }
@@ -357,7 +364,7 @@ body {
 .golden-corner-br svg {
   width: 100%;
   height: 100%;
-  filter: drop-shadow(0 0 6px rgba(216, 178, 110, 0.35));
+  filter: drop-shadow(0 0 8px rgba(216, 178, 110, 0.45));
 }
 
 /* Inner subtle glow behind content */
@@ -366,7 +373,7 @@ body {
   inset: 0;
   background: radial-gradient(
     ellipse 80% 60% at 50% 50%,
-    rgba(216, 178, 110, 0.06) 0%,
+    rgba(216, 178, 110, 0.08) 0%,
     transparent 70%
   );
   pointer-events: none;
@@ -378,12 +385,29 @@ body {
   z-index: 1;
 }
 
+/* ── Magical Sparkles ────────────────────────────────── */
+.golden-sparkle {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  animation: sparkle-twinkle 3s ease-in-out infinite;
+}
+.golden-sparkle-1 { top: 6%; left: 28%; animation-delay: 0s; }
+.golden-sparkle-2 { top: 14%; right: 22%; animation-delay: 0.8s; }
+.golden-sparkle-3 { bottom: 12%; left: 32%; animation-delay: 1.5s; }
+.golden-sparkle-4 { bottom: 8%; right: 30%; animation-delay: 2.2s; }
+
+@keyframes sparkle-twinkle {
+  0%, 100% { opacity: 0.2; transform: scale(0.7); }
+  50%      { opacity: 1;   transform: scale(1.2); }
+}
+
 /* ── Golden Side Dividers ────────────────────────────── */
 /* Horizontal (top / bottom) */
 .golden-side-h {
   position: absolute;
-  left: clamp(48px, 8vw, 80px);
-  right: clamp(48px, 8vw, 80px);
+  left: clamp(64px, 11vw, 120px);
+  right: clamp(64px, 11vw, 120px);
   display: flex;
   align-items: center;
   z-index: 1;
@@ -392,21 +416,21 @@ body {
 .golden-side-h-bottom { bottom: 0; }
 .golden-side-h-line {
   flex: 1;
-  height: 1px;
-  background: linear-gradient(to right, rgba(216, 178, 110, 0.35), rgba(216, 178, 110, 0.5), rgba(216, 178, 110, 0.35));
+  height: 1.5px;
+  background: linear-gradient(to right, rgba(216, 178, 110, 0.3), rgba(216, 178, 110, 0.6), rgba(216, 178, 110, 0.3));
 }
 .golden-side-h-cross {
-  width: clamp(24px, 4vw, 40px);
-  height: clamp(10px, 1.6vw, 16px);
+  width: clamp(32px, 5vw, 60px);
+  height: clamp(14px, 2.2vw, 24px);
   flex-shrink: 0;
-  filter: drop-shadow(0 0 4px rgba(216, 178, 110, 0.3));
+  filter: drop-shadow(0 0 5px rgba(216, 178, 110, 0.4));
 }
 
 /* Vertical (left / right) */
 .golden-side-v {
   position: absolute;
-  top: clamp(48px, 8vw, 80px);
-  bottom: clamp(48px, 8vw, 80px);
+  top: clamp(64px, 11vw, 120px);
+  bottom: clamp(64px, 11vw, 120px);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -416,14 +440,14 @@ body {
 .golden-side-v-right { right: 0; }
 .golden-side-v-line {
   flex: 1;
-  width: 1px;
-  background: linear-gradient(to bottom, rgba(216, 178, 110, 0.35), rgba(216, 178, 110, 0.5), rgba(216, 178, 110, 0.35));
+  width: 1.5px;
+  background: linear-gradient(to bottom, rgba(216, 178, 110, 0.3), rgba(216, 178, 110, 0.6), rgba(216, 178, 110, 0.3));
 }
 .golden-side-v-cross {
-  width: clamp(10px, 1.6vw, 16px);
-  height: clamp(24px, 4vw, 40px);
+  width: clamp(14px, 2.2vw, 24px);
+  height: clamp(32px, 5vw, 60px);
   flex-shrink: 0;
-  filter: drop-shadow(0 0 4px rgba(216, 178, 110, 0.3));
+  filter: drop-shadow(0 0 5px rgba(216, 178, 110, 0.4));
 }
 
 .section-verse {
