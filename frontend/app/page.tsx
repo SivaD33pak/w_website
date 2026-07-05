@@ -15,8 +15,6 @@ export default function HomePage() {
 
       <HeroSection />
 
-      <TornPaper />
-
       <CountdownSection />
 
       <TornPaper />
