@@ -4,7 +4,7 @@ export type WeddingImage = {
   src: string;
   alt: string;
   aspectRatio: "1:1" | "1:3" | "3:4" | "4:3" | "16:9";
-  role: "hero" | "story" | "event" | "decorative" | "rsvp";
+  role: "hero" | "event" | "decorative" | "rsvp";
   source: "banani-firebase" | "banani-generated" | "local";
 };
 
@@ -53,7 +53,6 @@ export const venue = {
 
 export const sectionOrder = [
   "home",
-  "our-story",
   "countdown",
   "events",
   "bible-verse",
@@ -63,19 +62,9 @@ export const sectionOrder = [
 
 export const navigationItems = [
   { label: "HOME", href: "#home", sectionId: "home" },
-  { label: "OUR STORY", href: "#our-story", sectionId: "our-story" },
   { label: "EVENTS", href: "#events", sectionId: "events" },
   { label: "BIBLE VERSE", href: "#bible-verse", sectionId: "bible-verse" },
   { label: "RSVP", href: "#rsvp", sectionId: "rsvp" },
-] as const;
-
-export const storyLines = [
-  "Two souls, chosen by God,",
-  "brought together in His perfect time",
-  "and blessed with a love that",
-  "strengthens every day.",
-  "We can't wait to begin our forever",
-  "with you by our side.",
 ] as const;
 
 export const bibleVerse = {
@@ -114,15 +103,6 @@ export const events = [
 ] as const;
 
 export const images = [
-  {
-    id: "story-couple-portrait",
-    title: "Couple portrait",
-    alt: "Indian bride and groom in a romantic portrait",
-    aspectRatio: "3:4",
-    role: "story",
-    source: "banani-generated",
-    src: "https://storage.googleapis.com/banani-generated-images/generated-images/c39db306-4532-4305-aba5-1b3481543ea1.jpg",
-  },
   {
     id: "decorative-cross",
     title: "Floral Cross",
