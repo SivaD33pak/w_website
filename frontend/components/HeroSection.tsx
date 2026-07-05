@@ -50,7 +50,7 @@ export default function HeroSection() {
     layerRefs.current = [layer0Ref.current, layer1Ref.current, layer2Ref.current];
 
     const layers = layerRefs.current.filter(Boolean);
-    const speeds = [0, 0.15, 0.25];
+    const speeds = [0, 0.22, 0.38];
 
     // gsap.context scopes all animations + ScrollTriggers created inside it,
     // so ctx.revert() only kills THIS section's effects.
@@ -68,11 +68,11 @@ export default function HeroSection() {
         });
       });
 
-      // Corner flowers share the front-most layer's scroll speed (0.35).
+      // Corner flowers move fastest on scroll (front-most depth layer).
       [flowerLeftRef.current, flowerRightRef.current].forEach((el) => {
         if (!el) return;
         gsap.to(el, {
-          yPercent: 0.35 * 100,
+          yPercent: 0.55 * 100,
           ease: "none",
           scrollTrigger: {
             trigger: sectionRef.current,
@@ -95,13 +95,13 @@ export default function HeroSection() {
   const { needsPermission, requestGyroPermission } = useParallax(
     sectionRef,
     [
-      { ref: layer0Ref, speedX: 0, speedY: 0 },      // sky:          fixed base
-      { ref: layer1Ref, speedX: -18, speedY: -14 },  // mountain:     slow drift
-      { ref: layer2Ref, speedX: -32, speedY: -24 },  // church:       moderate
-      { ref: flowerLeftRef, speedX: -50, speedY: -38 },   // flowers:  fastest (front)
-      { ref: flowerRightRef, speedX: -50, speedY: -38 },  // flowers:  fastest (front)
+      { ref: layer0Ref, speedX: 0, speedY: 0 },       // sky:          fixed base
+      { ref: layer1Ref, speedX: -28, speedY: -22 },   // mountain:     slow drift
+      { ref: layer2Ref, speedX: -48, speedY: -36 },   // church:       moderate
+      { ref: flowerLeftRef, speedX: -75, speedY: -58 },   // flowers:  fastest (front)
+      { ref: flowerRightRef, speedX: -75, speedY: -58 },  // flowers:  fastest (front)
     ],
-    { smoothing: 0.08 },
+    { smoothing: 0.07 },
   );
 
   const allLayerRefs = [layer0Ref, layer1Ref, layer2Ref];
@@ -115,19 +115,19 @@ export default function HeroSection() {
       {/* Parallax background layers.
           Each layer is intentionally oversized (negative inset) so that its
           edges stay hidden behind the viewport even at maximum parallax
-          displacement. Front layers move faster (up to 50px), so they get a
-          larger buffer. Percentage insets scale with viewport size so the
-          buffer always covers the fixed-pixel displacement. */}
+          displacement. Front layers move faster (cursor/gyro up to ~38px), so
+          they get a larger buffer. Percentage insets scale with viewport size
+          so the buffer always covers the fixed-pixel displacement. */}
       {heroImages.map((img, i) => (
         <div
           key={img.id}
           ref={allLayerRefs[i]}
           className={`hero-layer-${i} absolute`}
-          /* inset buffer per layer (must exceed max parallax offset):
-             layer 0: ~0px move  → -6%
-             layer 1: ~18px move → -8%
-             layer 2: ~32px move → -10% */
-          style={{ inset: `${-6 - i * 2}%` }}
+          /* inset buffer per layer (must exceed max cursor/gyro offset):
+             layer 0: ~0px move   → -8%
+             layer 1: ~14px move  → -11%
+             layer 2: ~24px move  → -14% */
+          style={{ inset: `${-8 - i * 3}%` }}
         >
           <Image
             src={img.src}
