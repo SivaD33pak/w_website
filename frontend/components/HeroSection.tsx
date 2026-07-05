@@ -71,15 +71,7 @@ export default function HeroSection() {
         sizes="100vw"
       />
 
-      {/* Dark overlay for text readability — darker at the bottom so the
-          cream TornPaper edge doesn't bleed through as a white shadow. */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            "linear-gradient(180deg, rgba(24,27,58,0.4) 0%, rgba(24,27,58,0.1) 40%, rgba(24,27,58,0.85) 100%)",
-        }}
-      />
+      {/* Raw hero background — no overlay gradient */}
 
       {/* Content */}
       <div className="hero-content relative flex flex-col items-center text-center">
