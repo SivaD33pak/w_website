@@ -71,12 +71,13 @@ export default function HeroSection() {
         sizes="100vw"
       />
 
-      {/* Dark overlay for text readability */}
+      {/* Dark overlay for text readability — darker at the bottom so the
+          cream TornPaper edge doesn't bleed through as a white shadow. */}
       <div
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(180deg, rgba(24,27,58,0.4) 0%, rgba(24,27,58,0.1) 40%, rgba(24,27,58,0.5) 100%)",
+            "linear-gradient(180deg, rgba(24,27,58,0.4) 0%, rgba(24,27,58,0.1) 40%, rgba(24,27,58,0.85) 100%)",
         }}
       />
 
