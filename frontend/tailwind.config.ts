@@ -21,6 +21,9 @@ const config: Config = {
       fontFamily: {
         body: ["Inter", "sans-serif"],
         headings: ["PT Serif", "serif"],
+        hero: ['"Cormorant Garamond"', "serif"],
+        "hero-script": ['"Allura"', "cursive"],
+        "hero-caption": ['"Montserrat"', "sans-serif"],
       },
     },
   },
