@@ -54,7 +54,9 @@ export default function HeroSection() {
         sizes="100vw"
       />
 
-      {/* Raw hero background — no overlay gradient */}
+      {/* Subtle radial dark overlay behind the text only — improves
+          readability without tinting the whole background image. */}
+      <div className="hero-text-glow" />
 
       {/* Content */}
       <div className="hero-content relative flex flex-col items-center text-center">
@@ -65,7 +67,7 @@ export default function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          <p className="hero-caption font-hero-caption text-hero-primary">
+          <p className="hero-caption font-hero-caption text-hero-secondary">
             {heroData.kicker}
           </p>
           <div className="hero-caption-divider" />
@@ -81,9 +83,9 @@ export default function HeroSection() {
           {couple.brideFullName}
         </motion.h1>
 
-        {/* Script "and" */}
+        {/* Script "and" — generous spacing around it for editorial breathing room */}
         <motion.div
-          className="flex items-center justify-center gap-6"
+          className="my-7 flex items-center justify-center gap-8"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 0.8 }}
@@ -103,9 +105,9 @@ export default function HeroSection() {
           {couple.groomFullName}
         </motion.h1>
 
-        {/* Bible verse */}
+        {/* Bible verse — extra top margin for luxury separation */}
         <motion.div
-          className="mt-12 px-6"
+          className="mt-16 px-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 1.3 }}
@@ -113,7 +115,7 @@ export default function HeroSection() {
           <p className="hero-verse-quote font-hero italic text-hero-verse">
             {heroData.quote}
           </p>
-          <p className="hero-verse-ref font-hero-caption text-gold mt-4">
+          <p className="hero-verse-ref font-hero-caption text-gold mt-5">
             {heroData.quoteRef}
           </p>
         </motion.div>

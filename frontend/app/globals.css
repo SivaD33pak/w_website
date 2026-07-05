@@ -124,24 +124,39 @@ body {
 }
 
 /* ── Hero Section ────────────────────────────────────────── */
-/* Luxury wedding-invitation typography. Palette avoids pure white — text
-   reads as naturally illuminated ivory/cream against the hero image.
-   --hero-primary: #F8F4ED  main ivory text (names)
+/* Luxury editorial wedding-invitation typography (Vera Wang / Vogue Weddings).
+   Warm ivory text with a soft lantern glow rather than a dark shadow.
+   --hero-primary: #F6F0E8  warm ivory (names)
    --hero-secondary: #E7DDD0  captions
-   --hero-gold: #D8B06A       accent (and, verse ref)
+   --hero-gold: #D9B16D       champagne gold (and, verse ref)
    --hero-verse: #F2ECE5      bible verse body (warm) */
 .hero-shell {
   min-height: 100vh;
-  --hero-primary: #F8F4ED;
+  --hero-primary: #F6F0E8;
   --hero-secondary: #E7DDD0;
-  --hero-gold: #D8B06A;
+  --hero-gold: #D9B16D;
   --hero-verse: #F2ECE5;
+}
+
+/* Subtle radial darkening behind the text column only — improves
+   readability without tinting the whole background image. */
+.hero-text-glow {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 55% 65% at 50% 45%,
+    rgba(10, 12, 30, 0.42) 0%,
+    rgba(10, 12, 30, 0.22) 45%,
+    transparent 75%
+  );
 }
 
 .hero-content {
   /* Generous vertical breathing room for a luxury-invitation feel. */
-  padding-top: clamp(90px, 14vw, 130px);
-  padding-bottom: clamp(60px, 9vw, 100px);
+  padding-top: clamp(100px, 15vw, 150px);
+  padding-bottom: clamp(70px, 10vw, 120px);
   z-index: 1;
 }
 
@@ -153,44 +168,48 @@ body {
 /* ── Top caption: "TOGETHER WITH THEIR FAMILIES" ─────────── */
 .hero-caption {
   font-weight: 300;
-  font-size: clamp(11px, 1.4vw, 14px);
-  letter-spacing: 0.55em;
+  font-size: clamp(11px, 1.3vw, 14px);
+  letter-spacing: 0.6em;
   text-transform: uppercase;
   color: var(--hero-secondary);
-  opacity: 0.85;
-  text-indent: 0.55em; /* optically center letterspaced uppercase */
+  opacity: 0.78;
+  text-indent: 0.6em; /* optically center letterspaced uppercase */
 }
 
 .hero-caption-divider {
   width: 1px;
-  height: clamp(28px, 5vw, 48px);
-  margin-top: 18px;
+  height: clamp(36px, 6vw, 60px);
+  margin-top: 24px;
   background: linear-gradient(
     to bottom,
-    rgba(216, 176, 106, 0.6),
+    rgba(217, 177, 109, 0.55),
     transparent
   );
 }
 
-/* ── Names: Bride & Groom (Cormorant Garamond, 600) ─────── */
+/* ── Names: Bride & Groom (Cormorant Garamond, 500) ─────── */
 .hero-name {
-  font-weight: 600;
-  font-size: clamp(44px, 9vw, 88px);
-  line-height: 1.05;
-  letter-spacing: 0.005em;
+  font-weight: 500;
+  font-size: clamp(44px, 8.5vw, 86px);
+  line-height: 1.08;
+  letter-spacing: 0.008em;
   color: var(--hero-primary);
-  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.18);
-  margin-top: clamp(8px, 1.5vw, 16px);
+  /* Soft warm lantern glow — not a dark shadow. Two layered halos give
+     the text a naturally illuminated, candlelit quality. */
+  text-shadow:
+    0 0 32px rgba(247, 223, 180, 0.30),
+    0 0 64px rgba(247, 223, 180, 0.14);
+  margin-top: clamp(10px, 2vw, 22px);
 }
 
 /* Hairline flanking the script "and". */
 .hero-name-line {
-  width: clamp(60px, 12vw, 130px);
+  width: clamp(70px, 13vw, 140px);
   height: 1px;
   background: linear-gradient(
     to right,
     transparent,
-    rgba(216, 176, 106, 0.7)
+    rgba(217, 177, 109, 0.6)
   );
 }
 .hero-name-line + .hero-name-line,
@@ -198,32 +217,34 @@ body {
   transform: scaleX(-1);
 }
 
-/* ── Script "and" (Allura) ───────────────────────────────── */
+/* ── Script "and" (Allura) — ~40% of name size, champagne ── */
 .hero-and-script {
   font-weight: 400;
-  font-size: clamp(40px, 6vw, 58px);
+  font-size: clamp(28px, 4vw, 40px);
   line-height: 1;
   color: var(--hero-gold);
+  text-shadow: 0 0 24px rgba(217, 177, 109, 0.22);
 }
 
 /* ── Bible verse (Cormorant Garamond Italic) ────────────── */
 .hero-verse-quote {
   font-weight: 400;
   font-style: italic;
-  font-size: clamp(16px, 2vw, 22px);
+  font-size: clamp(16px, 1.9vw, 22px);
   line-height: 1.8;
   color: var(--hero-verse);
-  opacity: 0.92;
+  opacity: 0.90;
   max-width: 650px;
-  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.22);
+  text-shadow: 0 0 18px rgba(10, 12, 30, 0.35);
 }
 
 /* Verse reference — "— Matthew 19:6" (Montserrat, 500, gold) */
 .hero-verse-ref {
   font-weight: 500;
-  font-size: clamp(13px, 1.5vw, 16px);
+  font-size: clamp(13px, 1.4vw, 16px);
   letter-spacing: 0.125em; /* ~2px at 16px */
   color: var(--hero-gold);
+  text-shadow: 0 0 16px rgba(10, 12, 30, 0.3);
 }
 
 /* Scroll indicator — centered at the bottom of the hero */
