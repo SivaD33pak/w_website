@@ -234,107 +234,105 @@ export default function CountdownSection() {
       ref={sectionRef}
       className="section-countdown relative w-full overflow-hidden"
     >
-      {/* Star particles (decorative dots) */}
-      <div className="absolute inset-0">
-        {particles.map((p, i) => (
-          <div
-            key={i}
-            className="absolute rounded-full bg-foreground"
-            style={{
-              width: `${p.width}px`,
-              height: `${p.height}px`,
-              top: `${p.top}%`,
-              left: `${p.left}%`,
-              opacity: p.opacity,
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Bottom radial glow */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(ellipse 60% 40% at 50% 100%, rgba(68, 53, 91, 0.6) 0%, transparent 70%)",
-        }}
-      />
-
-      <motion.div
-        className="relative flex flex-col items-center"
-        variants={fadeInUp}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-50px" }}
-      >
-        {/* ── Golden Ornamental Frame ── */}
-        <div className="golden-frame relative mx-4 my-2 sm:mx-8 md:mx-12 lg:mx-16">
-          {/* Corner ornaments */}
-          <div className="golden-corner-tl"><GoldenCorner position="top-left" /></div>
-          <div className="golden-corner-tr"><GoldenCorner position="top-right" /></div>
-          <div className="golden-corner-bl"><GoldenCorner position="bottom-left" /></div>
-          <div className="golden-corner-br"><GoldenCorner position="bottom-right" /></div>
-
-          {/* Side dividers */}
-          <GoldenSideDivider side="top" />
-          <GoldenSideDivider side="bottom" />
-          <GoldenSideDivider side="left" />
-          <GoldenSideDivider side="right" />
-
-          {/* Inner glow */}
-          <div className="golden-frame-glow" />
-
-          {/* Content inside the frame */}
-          <div className="golden-frame-content relative flex flex-col items-center py-8 px-4 sm:py-10 sm:px-8 md:py-14 md:px-12">
-            {/* Elegant wedding date display */}
-            <div className="countdown-date-display flex flex-col items-center mb-8 md:mb-10">
-              <span className="countdown-date-day font-headings text-foreground">
-                {weddingDate.day}
-              </span>
-              <div className="countdown-date-divider" />
-              <span className="countdown-date-month font-body text-gold tracking-widest uppercase">
-                {weddingDate.monthYear}
-              </span>
-              <span className="countdown-date-weekday font-body text-foreground tracking-widest uppercase">
-                {weddingDate.weekday}
-              </span>
-            </div>
-
-            <p className="section-eyebrow-muted section-eyebrow font-body text-foreground text-xs tracking-widest uppercase mb-2">
-              COUNTING DOWN TO OUR BIG DAY
-            </p>
-
-            <div className="flex items-center gap-3 mb-8 md:mb-12">
-              <div
-                style={{
-                  width: 60,
-                  height: 1,
-                  background: "rgba(216, 178, 110, 0.5)",
-                }}
-              />
-              <HeartSVG />
-              <div
-                style={{
-                  width: 60,
-                  height: 1,
-                  background: "rgba(216, 178, 110, 0.5)",
-                }}
-              />
-            </div>
-
-            <div className="flex flex-wrap items-center justify-center gap-y-4" suppressHydrationWarning>
-              <CountdownUnit value={mounted ? timeLeft.days : 0} label="DAYS" isLast={false} />
-              <CountdownUnit value={mounted ? timeLeft.hours : 0} label="HOURS" isLast={false} />
-              <CountdownUnit value={mounted ? timeLeft.minutes : 0} label="MINUTES" isLast={false} />
-              <CountdownUnit
-                value={mounted ? timeLeft.seconds : 0}
-                label="SECONDS"
-                isLast={true}
-              />
-            </div>
-          </div>
+      {/* ── Golden Ornamental Frame (fills the section edge-to-edge) ── */}
+      <div className="golden-frame relative w-full">
+        {/* Star particles (decorative dots) */}
+        <div className="absolute inset-0 z-0">
+          {particles.map((p, i) => (
+            <div
+              key={i}
+              className="absolute rounded-full bg-foreground"
+              style={{
+                width: `${p.width}px`,
+                height: `${p.height}px`,
+                top: `${p.top}%`,
+                left: `${p.left}%`,
+                opacity: p.opacity,
+              }}
+            />
+          ))}
         </div>
-      </motion.div>
+
+        {/* Bottom radial glow */}
+        <div
+          className="absolute inset-0 z-0"
+          style={{
+            background:
+              "radial-gradient(ellipse 60% 40% at 50% 100%, rgba(68, 53, 91, 0.6) 0%, transparent 70%)",
+          }}
+        />
+
+        {/* Corner ornaments — flush to the section edges */}
+        <div className="golden-corner-tl"><GoldenCorner position="top-left" /></div>
+        <div className="golden-corner-tr"><GoldenCorner position="top-right" /></div>
+        <div className="golden-corner-bl"><GoldenCorner position="bottom-left" /></div>
+        <div className="golden-corner-br"><GoldenCorner position="bottom-right" /></div>
+
+        {/* Side dividers */}
+        <GoldenSideDivider side="top" />
+        <GoldenSideDivider side="bottom" />
+        <GoldenSideDivider side="left" />
+        <GoldenSideDivider side="right" />
+
+        {/* Inner glow */}
+        <div className="golden-frame-glow" />
+
+        {/* Content inside the frame — vertical breathing room lives here */}
+        <motion.div
+          className="golden-frame-content relative flex flex-col items-center w-full py-12 px-4 sm:px-8 md:py-16 md:px-12"
+          variants={fadeInUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+        >
+          {/* Elegant wedding date display */}
+          <div className="countdown-date-display flex flex-col items-center mb-8 md:mb-10">
+            <span className="countdown-date-day font-headings text-foreground">
+              {weddingDate.day}
+            </span>
+            <div className="countdown-date-divider" />
+            <span className="countdown-date-month font-body text-gold tracking-widest uppercase">
+              {weddingDate.monthYear}
+            </span>
+            <span className="countdown-date-weekday font-body text-foreground tracking-widest uppercase">
+              {weddingDate.weekday}
+            </span>
+          </div>
+
+          <p className="section-eyebrow-muted section-eyebrow font-body text-foreground text-xs tracking-widest uppercase mb-2">
+            COUNTING DOWN TO OUR BIG DAY
+          </p>
+
+          <div className="flex items-center gap-3 mb-8 md:mb-12">
+            <div
+              style={{
+                width: 60,
+                height: 1,
+                background: "rgba(216, 178, 110, 0.5)",
+              }}
+            />
+            <HeartSVG />
+            <div
+              style={{
+                width: 60,
+                height: 1,
+                background: "rgba(216, 178, 110, 0.5)",
+              }}
+            />
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-y-4" suppressHydrationWarning>
+            <CountdownUnit value={mounted ? timeLeft.days : 0} label="DAYS" isLast={false} />
+            <CountdownUnit value={mounted ? timeLeft.hours : 0} label="HOURS" isLast={false} />
+            <CountdownUnit value={mounted ? timeLeft.minutes : 0} label="MINUTES" isLast={false} />
+            <CountdownUnit
+              value={mounted ? timeLeft.seconds : 0}
+              label="SECONDS"
+              isLast={true}
+            />
+          </div>
+        </motion.div>
+      </div>
     </section>
   );
 }

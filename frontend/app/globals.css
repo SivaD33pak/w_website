@@ -281,8 +281,9 @@ body {
 
 .section-countdown {
   background: linear-gradient(180deg, #181b3a 0%, #2c1e3a 50%, #181b3a 100%);
-  padding-top: clamp(40px, 7vw, 72px);
-  padding-bottom: clamp(40px, 7vw, 72px);
+  /* No padding — the golden frame fills the section edge-to-edge.
+     Vertical breathing room lives inside .golden-frame-content. */
+  padding: 0;
 }
 
 /* Elegant wedding date display above the countdown */
@@ -325,20 +326,18 @@ body {
 }
 
 /* ── Golden Ornamental Frame ─────────────────────────── */
+/* Frame fills the entire section edge-to-edge — no gaps.
+   Position: relative is set inline in CountdownSection.tsx. */
 .golden-frame {
   border: 1.5px solid rgba(216, 178, 110, 0.45);
   box-shadow:
     0 0 20px rgba(216, 178, 110, 0.08),
     inset 0 0 30px rgba(216, 178, 110, 0.04);
-  position: relative;
-  /* Double-border illusion via outline */
-  outline: 1px solid rgba(216, 178, 110, 0.15);
-  outline-offset: 4px;
   /* Soft outer aura */
   filter: drop-shadow(0 0 40px rgba(216, 178, 110, 0.10));
 }
 
-/* Corner ornaments */
+/* Corner ornaments — flush against the section edges */
 .golden-corner-tl,
 .golden-corner-tr,
 .golden-corner-bl,
@@ -348,10 +347,10 @@ body {
   height: clamp(48px, 8vw, 80px);
   z-index: 2;
 }
-.golden-corner-tl { top: -4px; left: -4px; }
-.golden-corner-tr { top: -4px; right: -4px; }
-.golden-corner-bl { bottom: -4px; left: -4px; }
-.golden-corner-br { bottom: -4px; right: -4px; }
+.golden-corner-tl { top: 0; left: 0; }
+.golden-corner-tr { top: 0; right: 0; }
+.golden-corner-bl { bottom: 0; left: 0; }
+.golden-corner-br { bottom: 0; right: 0; }
 .golden-corner-tl svg,
 .golden-corner-tr svg,
 .golden-corner-bl svg,
@@ -389,8 +388,8 @@ body {
   align-items: center;
   z-index: 1;
 }
-.golden-side-h-top { top: -1px; }
-.golden-side-h-bottom { bottom: -1px; }
+.golden-side-h-top { top: 0; }
+.golden-side-h-bottom { bottom: 0; }
 .golden-side-h-line {
   flex: 1;
   height: 1px;
@@ -413,8 +412,8 @@ body {
   align-items: center;
   z-index: 1;
 }
-.golden-side-v-left { left: -1px; }
-.golden-side-v-right { right: -1px; }
+.golden-side-v-left { left: 0; }
+.golden-side-v-right { right: 0; }
 .golden-side-v-line {
   flex: 1;
   width: 1px;
