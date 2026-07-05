@@ -18,6 +18,112 @@ function HeartSVG({ size = 10 }: { size?: number }) {
   );
 }
 
+/* ── Golden Border Ornament Components ──────────────────── */
+
+/** Corner ornament with a cross and scrollwork */
+function GoldenCorner({
+  position,
+}: {
+  position: "top-left" | "top-right" | "bottom-left" | "bottom-right";
+}) {
+  const flips =
+    position === "top-right"
+      ? "scaleX(-1)"
+      : position === "bottom-left"
+        ? "scaleY(-1)"
+        : position === "bottom-right"
+          ? "scale(-1)"
+          : "none";
+
+  return (
+    <svg
+      className="golden-corner"
+      viewBox="0 0 80 80"
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ transform: flips }}
+    >
+      {/* Cross */}
+      <line x1="16" y1="4" x2="16" y2="28" stroke="#D8B26E" strokeWidth="1.8" strokeLinecap="round" />
+      <line x1="8" y1="14" x2="24" y2="14" stroke="#D8B26E" strokeWidth="1.8" strokeLinecap="round" />
+
+      {/* Outer scrollwork arm */}
+      <path
+        d="M28,4 C32,2 40,2 48,4 C52,5 56,8 58,12"
+        fill="none"
+        stroke="#D8B26E"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+        opacity="0.8"
+      />
+      <path
+        d="M4,28 C2,32 2,40 4,48 C5,52 8,56 12,58"
+        fill="none"
+        stroke="#D8B26E"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+        opacity="0.8"
+      />
+
+      {/* Inner scrollwork accent */}
+      <path
+        d="M28,12 C34,10 38,12 44,14 C46,14 48,16 48,18"
+        fill="none"
+        stroke="#D8B26E"
+        strokeWidth="0.8"
+        strokeLinecap="round"
+        opacity="0.55"
+      />
+      <path
+        d="M12,28 C10,34 12,38 14,44 C14,46 16,48 18,48"
+        fill="none"
+        stroke="#D8B26E"
+        strokeWidth="0.8"
+        strokeLinecap="round"
+        opacity="0.55"
+      />
+
+      {/* Fleur-de-lis accent */}
+      <circle cx="58" cy="12" r="2" fill="#D8B26E" opacity="0.7" />
+      <circle cx="12" cy="58" r="2" fill="#D8B26E" opacity="0.7" />
+
+      {/* Diamond dots */}
+      <rect x="38" y="0" width="3" height="3" rx="0.5" transform="rotate(45 39.5 1.5)" fill="#D8B26E" opacity="0.5" />
+      <rect x="0" y="38" width="3" height="3" rx="0.5" transform="rotate(45 1.5 39.5)" fill="#D8B26E" opacity="0.5" />
+    </svg>
+  );
+}
+
+/** Side divider with cross and laurel details */
+function GoldenSideDivider({ side }: { side: "top" | "bottom" | "left" | "right" }) {
+  if (side === "left" || side === "right") {
+    const isRight = side === "right";
+    return (
+      <div className={`golden-side-v ${isRight ? "golden-side-v-right" : "golden-side-v-left"}`}>
+        <div className="golden-side-v-line" />
+        <svg viewBox="0 0 16 40" className="golden-side-v-cross" xmlns="http://www.w3.org/2000/svg">
+          <line x1="8" y1="4" x2="8" y2="36" stroke="#D8B26E" strokeWidth="1.2" strokeLinecap="round" />
+          <line x1="4" y1="14" x2="12" y2="14" stroke="#D8B26E" strokeWidth="1.2" strokeLinecap="round" />
+          <line x1="5" y1="26" x2="11" y2="26" stroke="#D8B26E" strokeWidth="1" strokeLinecap="round" opacity="0.5" />
+        </svg>
+        <div className="golden-side-v-line" />
+      </div>
+    );
+  }
+
+  const isBottom = side === "bottom";
+  return (
+    <div className={`golden-side-h ${isBottom ? "golden-side-h-bottom" : "golden-side-h-top"}`}>
+      <div className="golden-side-h-line" />
+      <svg viewBox="0 0 40 16" className="golden-side-h-cross" xmlns="http://www.w3.org/2000/svg">
+        <line x1="4" y1="8" x2="36" y2="8" stroke="#D8B26E" strokeWidth="1.2" strokeLinecap="round" />
+        <line x1="14" y1="4" x2="14" y2="12" stroke="#D8B26E" strokeWidth="1.2" strokeLinecap="round" />
+        <line x1="26" y1="5" x2="26" y2="11" stroke="#D8B26E" strokeWidth="1" strokeLinecap="round" opacity="0.5" />
+      </svg>
+      <div className="golden-side-h-line" />
+    </div>
+  );
+}
+
 function getTargetDate(): Date {
   return new Date(`${weddingDate.isoDate}T00:00:00+05:30`);
 }
@@ -161,51 +267,72 @@ export default function CountdownSection() {
         whileInView="visible"
         viewport={{ once: true, margin: "-50px" }}
       >
-        {/* Elegant wedding date display */}
-        <div className="countdown-date-display flex flex-col items-center mb-10">
-          <span className="countdown-date-day font-headings text-foreground">
-            {weddingDate.day}
-          </span>
-          <div className="countdown-date-divider" />
-          <span className="countdown-date-month font-body text-gold tracking-widest uppercase">
-            {weddingDate.monthYear}
-          </span>
-          <span className="countdown-date-weekday font-body text-foreground tracking-widest uppercase">
-            {weddingDate.weekday}
-          </span>
-        </div>
+        {/* ── Golden Ornamental Frame ── */}
+        <div className="golden-frame relative mx-4 my-2 sm:mx-8 md:mx-12 lg:mx-16">
+          {/* Corner ornaments */}
+          <div className="golden-corner-tl"><GoldenCorner position="top-left" /></div>
+          <div className="golden-corner-tr"><GoldenCorner position="top-right" /></div>
+          <div className="golden-corner-bl"><GoldenCorner position="bottom-left" /></div>
+          <div className="golden-corner-br"><GoldenCorner position="bottom-right" /></div>
 
-        <p className="section-eyebrow-muted section-eyebrow font-body text-foreground text-xs tracking-widest uppercase mb-2">
-          COUNTING DOWN TO OUR BIG DAY
-        </p>
+          {/* Side dividers */}
+          <GoldenSideDivider side="top" />
+          <GoldenSideDivider side="bottom" />
+          <GoldenSideDivider side="left" />
+          <GoldenSideDivider side="right" />
 
-        <div className="flex items-center gap-3 mb-12">
-          <div
-            style={{
-              width: 60,
-              height: 1,
-              background: "rgba(216, 178, 110, 0.5)",
-            }}
-          />
-          <HeartSVG />
-          <div
-            style={{
-              width: 60,
-              height: 1,
-              background: "rgba(216, 178, 110, 0.5)",
-            }}
-          />
-        </div>
+          {/* Inner glow */}
+          <div className="golden-frame-glow" />
 
-        <div className="flex flex-wrap items-center justify-center gap-y-4" suppressHydrationWarning>
-          <CountdownUnit value={mounted ? timeLeft.days : 0} label="DAYS" isLast={false} />
-          <CountdownUnit value={mounted ? timeLeft.hours : 0} label="HOURS" isLast={false} />
-          <CountdownUnit value={mounted ? timeLeft.minutes : 0} label="MINUTES" isLast={false} />
-          <CountdownUnit
-            value={mounted ? timeLeft.seconds : 0}
-            label="SECONDS"
-            isLast={true}
-          />
+          {/* Content inside the frame */}
+          <div className="golden-frame-content relative flex flex-col items-center py-8 px-4 sm:py-10 sm:px-8 md:py-14 md:px-12">
+            {/* Elegant wedding date display */}
+            <div className="countdown-date-display flex flex-col items-center mb-8 md:mb-10">
+              <span className="countdown-date-day font-headings text-foreground">
+                {weddingDate.day}
+              </span>
+              <div className="countdown-date-divider" />
+              <span className="countdown-date-month font-body text-gold tracking-widest uppercase">
+                {weddingDate.monthYear}
+              </span>
+              <span className="countdown-date-weekday font-body text-foreground tracking-widest uppercase">
+                {weddingDate.weekday}
+              </span>
+            </div>
+
+            <p className="section-eyebrow-muted section-eyebrow font-body text-foreground text-xs tracking-widest uppercase mb-2">
+              COUNTING DOWN TO OUR BIG DAY
+            </p>
+
+            <div className="flex items-center gap-3 mb-8 md:mb-12">
+              <div
+                style={{
+                  width: 60,
+                  height: 1,
+                  background: "rgba(216, 178, 110, 0.5)",
+                }}
+              />
+              <HeartSVG />
+              <div
+                style={{
+                  width: 60,
+                  height: 1,
+                  background: "rgba(216, 178, 110, 0.5)",
+                }}
+              />
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center gap-y-4" suppressHydrationWarning>
+              <CountdownUnit value={mounted ? timeLeft.days : 0} label="DAYS" isLast={false} />
+              <CountdownUnit value={mounted ? timeLeft.hours : 0} label="HOURS" isLast={false} />
+              <CountdownUnit value={mounted ? timeLeft.minutes : 0} label="MINUTES" isLast={false} />
+              <CountdownUnit
+                value={mounted ? timeLeft.seconds : 0}
+                label="SECONDS"
+                isLast={true}
+              />
+            </div>
+          </div>
         </div>
       </motion.div>
     </section>
