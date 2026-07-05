@@ -1,15 +1,9 @@
 "use client";
 
-import { useRef, useEffect } from "react";
 import Image from "next/image";
-import { couple, weddingDate, venue, images } from "@/lib/wedding-content";
+import { couple, weddingDate, venue } from "@/lib/wedding-content";
 import { heroData } from "@/lib/wedding-data";
 import { motion } from "framer-motion";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useParallax, GyroPermissionButton } from "@/lib/use-parallax";
-
-gsap.registerPlugin(ScrollTrigger);
 
 function HeartSVG({ size = 11 }: { size?: number }) {
   return (
@@ -28,117 +22,21 @@ function CrossIcon({ size = 12 }: { size?: number }) {
   );
 }
 
-const heroImages = images.filter((img) => img.role === "hero");
-
 export default function HeroSection() {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  // Individual refs for each hero layer — used by both scroll parallax
-  // (via layerRefs array) and cursor/gyro parallax (via individual refs).
-  const layer0Ref = useRef<HTMLDivElement>(null);
-  const layer1Ref = useRef<HTMLDivElement>(null);
-  const layer2Ref = useRef<HTMLDivElement>(null);
-  // Decorative corner flowers (front-most floral elements), wired into the
-  // same scroll + cursor/gyro parallax as the background layers below.
-  const flowerLeftRef = useRef<HTMLDivElement>(null);
-  const flowerRightRef = useRef<HTMLDivElement>(null);
-  const layerRefs = useRef<(HTMLDivElement | null)[]>([]);
-
-  useEffect(() => {
-    if (!sectionRef.current) return;
-
-    // Populate the array from the individual refs for the scroll parallax loop.
-    layerRefs.current = [layer0Ref.current, layer1Ref.current, layer2Ref.current];
-
-    const layers = layerRefs.current.filter(Boolean);
-    const speeds = [0, 0.22, 0.38];
-
-    // gsap.context scopes all animations + ScrollTriggers created inside it,
-    // so ctx.revert() only kills THIS section's effects.
-    const ctx = gsap.context(() => {
-      layers.forEach((layer, i) => {
-        gsap.to(layer!, {
-          yPercent: speeds[i] * 100,
-          ease: "none",
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top top",
-            end: "bottom top",
-            scrub: true,
-          },
-        });
-      });
-
-      // Corner flowers move fastest on scroll (front-most depth layer).
-      [flowerLeftRef.current, flowerRightRef.current].forEach((el) => {
-        if (!el) return;
-        gsap.to(el, {
-          yPercent: 0.55 * 100,
-          ease: "none",
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top top",
-            end: "bottom top",
-            scrub: true,
-          },
-        });
-      });
-    }, sectionRef);
-
-    return () => ctx.revert();
-  }, []);
-
-  // Cursor/gyroscope parallax: front layers (closest to viewer, higher index)
-  // move fastest and decrease progressively toward the inner/deep layers,
-  // creating a depth illusion. Layer 0 (sky, farthest) barely moves.
-  // This composes with the scroll-based yPercent parallax above (x/y vs
-  // yPercent are independent GSAP transform components — no conflict).
-  const { needsPermission, requestGyroPermission } = useParallax(
-    sectionRef,
-    [
-      { ref: layer0Ref, speedX: 0, speedY: 0 },       // sky:          fixed base
-      { ref: layer1Ref, speedX: -28, speedY: -22 },   // mountain:     slow drift
-      { ref: layer2Ref, speedX: -48, speedY: -36 },   // church:       moderate
-      { ref: flowerLeftRef, speedX: -75, speedY: -58 },   // flowers:  fastest (front)
-      { ref: flowerRightRef, speedX: -75, speedY: -58 },  // flowers:  fastest (front)
-    ],
-    { smoothing: 0.07 },
-  );
-
-  const allLayerRefs = [layer0Ref, layer1Ref, layer2Ref];
-
   return (
     <section
       id="home"
-      ref={sectionRef}
       className="hero-shell relative w-full overflow-hidden"
     >
-      {/* Parallax background layers.
-          Each layer is intentionally oversized (negative inset) so that its
-          edges stay hidden behind the viewport even at maximum parallax
-          displacement. Front layers move faster (cursor/gyro up to ~38px), so
-          they get a larger buffer. Percentage insets scale with viewport size
-          so the buffer always covers the fixed-pixel displacement. */}
-      {heroImages.map((img, i) => (
-        <div
-          key={img.id}
-          ref={allLayerRefs[i]}
-          className={`hero-layer-${i} absolute`}
-          /* inset buffer per layer (must exceed max cursor/gyro offset):
-             layer 0: ~0px move   → -8%
-             layer 1: ~14px move  → -11%
-             layer 2: ~24px move  → -14% */
-          style={{ inset: `${-8 - i * 3}%` }}
-        >
-          <Image
-            src={img.src}
-            alt={img.alt}
-            fill
-            className="object-cover object-bottom"
-            priority={i === 0}
-            sizes="100vw"
-          />
-        </div>
-      ))}
+      {/* Single hero background image */}
+      <Image
+        src="/hero/hero-background.png"
+        alt="Wedding hero background"
+        fill
+        className="object-cover object-center"
+        priority
+        sizes="100vw"
+      />
 
       {/* Dark overlay for text readability */}
       <div
@@ -149,37 +47,8 @@ export default function HeroSection() {
         }}
       />
 
-      {/* Decorative floral corners (front-most). The right piece mirrors the
-          image via CSS so both sides stay symmetric. Drawn above the dark
-          overlay so the flowers stay vivid, below the hero text content. */}
-      <div ref={flowerLeftRef} className="hero-corner-flower hero-corner-flower-left">
-        <Image
-          src="/hero/layer-4-daisies.png"
-          alt="Floral decoration"
-          fill
-          className="object-contain object-bottom"
-          sizes="(max-width: 640px) 220px, 520px"
-        />
-      </div>
-      <div ref={flowerRightRef} className="hero-corner-flower hero-corner-flower-right">
-        <Image
-          src="/hero/layer-4-daisies.png"
-          alt="Floral decoration"
-          fill
-          className="object-contain object-bottom"
-          sizes="(max-width: 640px) 220px, 520px"
-        />
-      </div>
-
       {/* Content */}
       <div className="hero-content relative flex flex-col items-center text-center">
-        {/* iOS gyroscope permission prompt */}
-        {needsPermission && (
-          <div className="mb-6">
-            <GyroPermissionButton onRequest={requestGyroPermission} />
-          </div>
-        )}
-
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

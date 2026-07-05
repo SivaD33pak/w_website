@@ -115,33 +115,6 @@ export const events = [
 
 export const images = [
   {
-    id: "hero-sky",
-    title: "Twilight sky",
-    alt: "Twilight sky",
-    aspectRatio: "16:9",
-    role: "hero",
-    source: "local",
-    src: "/hero/layer-0-sky.png",
-  },
-  {
-    id: "hero-mountain",
-    title: "Mountain silhouette",
-    alt: "Mountain silhouette",
-    aspectRatio: "16:9",
-    role: "hero",
-    source: "local",
-    src: "/hero/layer-1-mountain.png",
-  },
-  {
-    id: "hero-church",
-    title: "Church with fairy lights",
-    alt: "Church with fairy lights",
-    aspectRatio: "16:9",
-    role: "hero",
-    source: "local",
-    src: "/hero/layer-2-church.png",
-  },
-  {
     id: "story-couple-portrait",
     title: "Couple portrait",
     alt: "Indian bride and groom in a romantic portrait",
