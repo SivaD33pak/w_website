@@ -153,9 +153,9 @@ body {
 }
 
 .hero-content {
-  /* Generous vertical breathing room for a luxury-invitation feel. */
-  padding-top: clamp(100px, 15vw, 150px);
-  padding-bottom: clamp(70px, 10vw, 120px);
+  /* Tighter vertical positioning so names + verse sit closer to the top. */
+  padding-top: clamp(60px, 8vw, 100px);
+  padding-bottom: clamp(50px, 8vw, 100px);
   z-index: 1;
 }
 
@@ -177,8 +177,8 @@ body {
 
 .hero-caption-divider {
   width: 1px;
-  height: clamp(36px, 6vw, 60px);
-  margin-top: 24px;
+  height: clamp(24px, 4vw, 40px);
+  margin-top: 16px;
   background: linear-gradient(
     to bottom,
     rgba(217, 177, 109, 0.55),
@@ -235,7 +235,7 @@ body {
   line-height: 1.8;
   color: var(--hero-verse);
   opacity: 0.90;
-  max-width: 650px;
+  max-width: 550px;
   text-shadow: 0 0 18px rgba(10, 12, 30, 0.35);
 }
 
