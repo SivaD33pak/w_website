@@ -457,7 +457,7 @@ body {
 }
 
 .section-rsvp {
-  background: #f8eee7;
+  background: linear-gradient(180deg, #181b3a 0%, #2c1e3a 45%, #181b3a 100%);
   padding-top: clamp(48px, 8vw, 80px);
   padding-bottom: clamp(48px, 8vw, 80px);
 }
@@ -481,14 +481,16 @@ body {
 .section-title {
   font-size: clamp(28px, 4vw, 40px);
   font-weight: 400;
+  color: #f6f0e8;
 }
 
 .section-card {
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(24, 27, 58, 0.55);
   backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1.5px solid rgba(216, 178, 110, 0.5);
   border-radius: 24px;
-  box-shadow: 0 8px 40px rgba(201, 143, 162, 0.15);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3), inset 0 0 24px rgba(216, 178, 110, 0.05);
 }
 
 .gold-divider {
@@ -810,16 +812,15 @@ body {
   object-fit: cover;
 }
 
-/* ── RSVP Section ───────────────────────────────────────── */
+/* ── RSVP Section (dark sky background) ─────────────────── */
 .rsvp-label {
-  color: #3a2d2d;
-  opacity: 0.7;
+  color: rgba(246, 240, 232, 0.7);
 }
 
 .rsvp-field {
   border: 1px solid rgba(216, 178, 110, 0.4);
-  background: rgba(248, 238, 231, 0.6);
-  color: #3a2d2d;
+  background: rgba(24, 27, 58, 0.6);
+  color: #f6f0e8;
   border-radius: 0.5rem;
   padding: 0.75rem 1rem;
   font-size: 0.875rem;
@@ -835,12 +836,11 @@ body {
 
 .rsvp-field::placeholder {
   opacity: 0.5;
-  color: #3a2d2d;
+  color: rgba(246, 240, 232, 0.6);
 }
 
 .rsvp-option-text {
-  color: #3a2d2d;
-  opacity: 0.8;
+  color: rgba(246, 240, 232, 0.8);
 }
 
 .rsvp-submit {

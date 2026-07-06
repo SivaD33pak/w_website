@@ -1,8 +1,10 @@
 "use client";
 
+import { useMemo } from "react";
 import { couple, weddingDate, bibleVerse } from "@/lib/wedding-content";
 import { motion } from "framer-motion";
 import { fadeInUp } from "@/lib/animations";
+import { generateStars, generateSparkles } from "@/lib/stars";
 
 function CrossIcon({ size = 28 }: { size?: number }) {
   return (
@@ -21,11 +23,93 @@ function HeartSVG({ size = 10 }: { size?: number }) {
   );
 }
 
+/** A 4-point sparkle star for the background field. */
+function FieldSparkle({ size = 12 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M6,0 L7,5 L12,6 L7,7 L6,12 L5,7 L0,6 L5,5 Z"
+        fill="#D8B26E"
+      />
+    </svg>
+  );
+}
+
 export default function WeddingFooter() {
+  const stars = useMemo(() => generateStars(40, 77), []);
+  const sparkles = useMemo(() => generateSparkles(4, 91), []);
+
   return (
     <footer className="section-footer w-full relative overflow-hidden">
+      {/* Nebula glows for depth */}
+      <div
+        className="events-nebula"
+        style={{
+          top: "20%",
+          left: "15%",
+          width: "30vw",
+          height: "30vw",
+          maxWidth: 300,
+          maxHeight: 300,
+          background:
+            "radial-gradient(circle, rgba(216,178,110,0.12) 0%, transparent 70%)",
+        }}
+      />
+      <div
+        className="events-nebula"
+        style={{
+          bottom: "15%",
+          right: "12%",
+          width: "28vw",
+          height: "28vw",
+          maxWidth: 280,
+          maxHeight: 280,
+          background:
+            "radial-gradient(circle, rgba(201,143,162,0.10) 0%, transparent 70%)",
+        }}
+      />
+
+      {/* Twinkling star field */}
+      <div className="events-stars">
+        {stars.map((s, i) => (
+          <div
+            key={`footer-star-${i}`}
+            className={`events-star${s.tier >= 2 ? " gold" : ""}`}
+            style={{
+              top: `${s.top}%`,
+              left: `${s.left}%`,
+              width: `${s.size}px`,
+              height: `${s.size}px`,
+              opacity: s.opacity,
+              animationDuration: `${s.duration}s`,
+              animationDelay: `${s.delay}s`,
+            }}
+          />
+        ))}
+        {sparkles.map((sp, i) => (
+          <div
+            key={`footer-sparkle-${i}`}
+            className="events-sparkle"
+            style={{
+              top: `${sp.top}%`,
+              left: `${sp.left}%`,
+              animationDuration: `${sp.duration}s`,
+              animationDelay: `${sp.delay}s`,
+            }}
+          >
+            <FieldSparkle size={sp.size} />
+          </div>
+        ))}
+      </div>
+
       <motion.div
         className="flex flex-col items-center gap-4 relative"
+        style={{ zIndex: 2 }}
         variants={fadeInUp}
         initial="hidden"
         whileInView="visible"
@@ -63,7 +147,7 @@ export default function WeddingFooter() {
               textShadow: "0 0 30px rgba(216, 178, 110, 0.2)",
             }}
           >
-            {bibleVerse.quote}
+            I have found the one whom <span className="text-gold">my soul loves</span>.
           </p>
           <div className="flex items-center justify-center gap-4 mb-2">
             <div

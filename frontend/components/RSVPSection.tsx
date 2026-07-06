@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, useMemo } from "react";
 import { weddingDate } from "@/lib/wedding-content";
 import { motion, AnimatePresence } from "framer-motion";
 import { fadeInUp, staggerContainer, staggerItem } from "@/lib/animations";
 import { ApiError, submitRsvp } from "@/lib/api";
+import { generateStars, generateSparkles } from "@/lib/stars";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -55,12 +56,32 @@ function HeartSVG({ size = 10 }: { size?: number }) {
   );
 }
 
+/** A 4-point sparkle star for the background field. */
+function FieldSparkle({ size = 12 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M6,0 L7,5 L12,6 L7,7 L6,12 L5,7 L0,6 L5,5 Z"
+        fill="#D8B26E"
+      />
+    </svg>
+  );
+}
+
 export default function RSVPSection() {
   const [form, setForm] = useState<FormData>(EMPTY_FORM);
   const [status, setStatus] = useState<FormStatus>("idle");
   const [submitMessage, setSubmitMessage] = useState<string | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
   const [savedName, setSavedName] = useState<string | null>(null);
+
+  const stars = useMemo(() => generateStars(50, 42), []);
+  const sparkles = useMemo(() => generateSparkles(5, 53), []);
 
   // ---------------------------------------------------------------------------
   // Field helpers
@@ -202,15 +223,65 @@ export default function RSVPSection() {
       id="rsvp"
       className="section-rsvp relative w-full flex flex-col items-center justify-center overflow-hidden"
     >
-      {/* Subtle background texture */}
-      <div className="absolute inset-0" style={{ pointerEvents: "none", zIndex: 0 }}>
-        <div
-          className="w-full h-full"
-          style={{
-            background:
-              "linear-gradient(135deg, rgba(216,178,110,0.03) 0%, rgba(201,143,162,0.05) 50%, rgba(216,178,110,0.03) 100%)",
-          }}
-        />
+      {/* Night-sky background: nebula glows */}
+      <div
+        className="events-nebula"
+        style={{
+          top: "15%",
+          right: "8%",
+          width: "35vw",
+          height: "35vw",
+          maxWidth: 350,
+          maxHeight: 350,
+          background:
+            "radial-gradient(circle, rgba(216,178,110,0.14) 0%, transparent 70%)",
+        }}
+      />
+      <div
+        className="events-nebula"
+        style={{
+          bottom: "10%",
+          left: "10%",
+          width: "32vw",
+          height: "32vw",
+          maxWidth: 320,
+          maxHeight: 320,
+          background:
+            "radial-gradient(circle, rgba(201,143,162,0.12) 0%, transparent 70%)",
+        }}
+      />
+
+      {/* Twinkling star field */}
+      <div className="events-stars">
+        {stars.map((s, i) => (
+          <div
+            key={`rsvp-star-${i}`}
+            className={`events-star${s.tier >= 2 ? " gold" : ""}`}
+            style={{
+              top: `${s.top}%`,
+              left: `${s.left}%`,
+              width: `${s.size}px`,
+              height: `${s.size}px`,
+              opacity: s.opacity,
+              animationDuration: `${s.duration}s`,
+              animationDelay: `${s.delay}s`,
+            }}
+          />
+        ))}
+        {sparkles.map((sp, i) => (
+          <div
+            key={`rsvp-sparkle-${i}`}
+            className="events-sparkle"
+            style={{
+              top: `${sp.top}%`,
+              left: `${sp.left}%`,
+              animationDuration: `${sp.duration}s`,
+              animationDelay: `${sp.delay}s`,
+            }}
+          >
+            <FieldSparkle size={sp.size} />
+          </div>
+        ))}
       </div>
 
       <motion.div
@@ -223,7 +294,7 @@ export default function RSVPSection() {
         <p className="section-eyebrow font-body text-xs tracking-widest uppercase mb-2">
           KINDLY RESPOND BY {weddingDate.rsvpDeadline}
         </p>
-        <h2 className="section-title font-headings text-cream-foreground mb-2">
+        <h2 className="section-title font-headings mb-2">
           RSVP
         </h2>
         <div className="divider-row mb-10">
@@ -276,7 +347,7 @@ export default function RSVPSection() {
               {errors.place && (
                 <p
                   className="font-body text-xs mt-2"
-                  style={{ color: "#9b4453" }}
+                  style={{ color: "#e88a9a" }}
                 >
                   {errors.place}
                 </p>
@@ -292,10 +363,10 @@ export default function RSVPSection() {
                 <span
                   className="flex items-center justify-center px-4 rounded-l-lg font-body text-sm font-medium"
                   style={{
-                    background: "rgba(216, 178, 110, 0.25)",
+                    background: "rgba(216, 178, 110, 0.15)",
                     border: "1px solid rgba(216, 178, 110, 0.4)",
                     borderRight: "none",
-                    color: "#3a2d2d",
+                    color: "#f6f0e8",
                   }}
                 >
                   +91
@@ -316,7 +387,7 @@ export default function RSVPSection() {
               {errors.whatsapp && (
                 <p
                   className="font-body text-xs mt-2"
-                  style={{ color: "#9b4453" }}
+                  style={{ color: "#e88a9a" }}
                 >
                   {errors.whatsapp}
                 </p>
@@ -343,7 +414,7 @@ export default function RSVPSection() {
               {errors.side && (
                 <p
                   className="font-body text-xs mt-2"
-                  style={{ color: "#9b4453" }}
+                  style={{ color: "#e88a9a" }}
                 >
                   {errors.side}
                 </p>
@@ -379,7 +450,7 @@ export default function RSVPSection() {
                   {errors.relation && (
                     <p
                       className="font-body text-xs mt-2"
-                      style={{ color: "#9b4453" }}
+                      style={{ color: "#e88a9a" }}
                     >
                       {errors.relation}
                     </p>
@@ -408,7 +479,7 @@ export default function RSVPSection() {
               {errors.coming && (
                 <p
                   className="font-body text-xs mt-2"
-                  style={{ color: "#9b4453" }}
+                  style={{ color: "#e88a9a" }}
                 >
                   {errors.coming}
                 </p>
@@ -529,11 +600,11 @@ function ChoiceOption({
          side-by-side on narrow screens; relax to the wider style on sm+. */
       className="flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-lg font-body text-[10px] leading-tight tracking-wide uppercase transition-colors sm:px-4 sm:text-xs sm:tracking-wider"
       style={{
-        background: selected ? "rgba(216, 178, 110, 0.18)" : "transparent",
+        background: selected ? "rgba(216, 178, 110, 0.15)" : "transparent",
         border: selected
           ? "1px solid rgba(216, 178, 110, 0.6)"
-          : "1px solid rgba(58, 45, 45, 0.25)",
-        color: "#3a2d2d",
+          : "1px solid rgba(246, 240, 232, 0.15)",
+        color: "#f6f0e8",
         fontWeight: selected ? 600 : 400,
       }}
     >
@@ -545,7 +616,7 @@ function ChoiceOption({
           minWidth: 14,
           border: selected
             ? "5px solid #d8b26e"
-            : "1px solid rgba(58, 45, 45, 0.4)",
+            : "1px solid rgba(246, 240, 232, 0.35)",
         }}
       />
       {label}
