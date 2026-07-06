@@ -1,8 +1,8 @@
 "use client";
 
-import { Music2, Music } from "lucide-react";
 import { couple } from "@/lib/wedding-content";
 import { useMusicPlayer } from "@/lib/use-music-player";
+import MusicToggleIcon from "@/components/MusicToggleIcon";
 
 function CrossIcon({ size = 20 }: { size?: number }) {
   return (
@@ -53,21 +53,7 @@ export default function WeddingNav() {
         title={isPlaying ? "Pause music" : "Play music"}
       >
         <div className="nav-button-ring absolute inset-0 rounded-full" />
-        {isPlaying ? (
-          <Music
-            size={18}
-            strokeWidth={1.7}
-            color="#D8B26E"
-            className="nav-music-icon"
-          />
-        ) : (
-          <Music2
-            size={18}
-            strokeWidth={1.7}
-            color="#D8B26E"
-            className="nav-music-icon"
-          />
-        )}
+        <MusicToggleIcon isPlaying={isPlaying} />
       </button>
     </nav>
   );

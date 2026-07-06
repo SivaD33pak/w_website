@@ -2,9 +2,9 @@
 
 import { useEffect } from "react";
 import { motion } from "framer-motion";
-import { Music2, Music } from "lucide-react";
 import { fadeInUp } from "@/lib/animations";
 import { playMusic, useMusicPlayer } from "@/lib/use-music-player";
+import MusicToggleIcon from "@/components/MusicToggleIcon";
 
 // Images live in /public/welcome. Drop your files there and adjust the names
 // below if yours differ.
@@ -25,6 +25,16 @@ export default function WelcomeScreen({ onOpen }: WelcomeScreenProps) {
     onOpen();
   };
 
+  // The overlay itself opens on tap. Clicks on the music button must NOT
+  // bubble up to the overlay, or toggling music would also open the site.
+  const onOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    // Extra safety: ignore clicks originating from any interactive control
+    // inside the overlay (the music button today, anything added later).
+    const target = e.target as HTMLElement;
+    if (target.closest("[data-no-open]")) return;
+    handleOpen();
+  };
+
   // Allow Esc / Enter to open as a keyboard alternative.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -42,6 +52,7 @@ export default function WelcomeScreen({ onOpen }: WelcomeScreenProps) {
     <motion.div
       className="welcome-overlay"
       style={{ backgroundImage: `url(${WELCOME_BG})` }}
+      onClick={onOverlayClick}
       initial={{ opacity: 1 }}
       exit={{ opacity: 0, scale: 1.04 }}
       transition={{ duration: 0.9, ease: "easeInOut" }}
@@ -67,37 +78,31 @@ export default function WelcomeScreen({ onOpen }: WelcomeScreenProps) {
         />
       </motion.div>
 
-      {/* Bottom-center: Tap To Open */}
-      <motion.button
-        type="button"
+      {/* Bottom-center: "Tap To Open" — purely visual indicator.
+          The whole overlay is the actual tap target (see onOverlayClick). */}
+      <motion.div
         className="welcome-open-btn"
-        onClick={handleOpen}
         variants={fadeInUp}
         initial="hidden"
         animate="visible"
         transition={{ delay: 0.4 }}
-        aria-label="Tap to open the wedding invitation"
       >
         <span className="welcome-open-text">TAP TO OPEN</span>
         <span className="welcome-open-line" aria-hidden="true" />
-      </motion.button>
+      </motion.div>
 
-      {/* Bottom-left: music toggle, default on (started on open) */}
+      {/* Bottom-left: music toggle. data-no-open stops taps here from
+          opening the site. */}
       <button
         type="button"
-        className={`welcome-music-btn${
-          isPlaying ? " is-playing" : ""
-        }`}
+        data-no-open
+        className={`welcome-music-btn${isPlaying ? " is-playing" : ""}`}
         onClick={toggle}
         aria-pressed={isPlaying}
         aria-label={isPlaying ? "Pause background music" : "Play background music"}
         title={isPlaying ? "Pause music" : "Play music"}
       >
-        {isPlaying ? (
-          <Music size={18} strokeWidth={1.7} color="#D8B26E" className="nav-music-icon" />
-        ) : (
-          <Music2 size={18} strokeWidth={1.7} color="#D8B26E" className="nav-music-icon" />
-        )}
+        <MusicToggleIcon isPlaying={isPlaying} />
       </button>
     </motion.div>
   );

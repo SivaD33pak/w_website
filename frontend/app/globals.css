@@ -205,7 +205,17 @@ body {
   align-items: center;
   justify-content: center;
   padding: 0 24px;
-  max-width: min(86vw, 720px);
+  /* Default (desktop): keep some breathing room. */
+  width: min(78vw, 720px);
+  max-width: 720px;
+}
+
+/* Mobile: enlarge the welcome text image for better readability. */
+@media (max-width: 640px) {
+  .welcome-text-wrap {
+    width: 94vw;
+    padding: 0 14px;
+  }
 }
 
 .welcome-text-img {
@@ -218,12 +228,19 @@ body {
   -webkit-user-drag: none;
 }
 
-/* "Tap To Open" — bottom-center, gold-themed. */
+/* "Tap To Open" — purely a visual indicator pinned to exact bottom-center.
+   The whole overlay is the real tap target (see onOverlayClick).
+   NOTE: centering uses left/right + margin:auto instead of translateX(-50%),
+   because framer-motion writes an inline transform that would override it
+   and push the button off to the right. */
 .welcome-open-btn {
   position: absolute;
   bottom: clamp(40px, 8vh, 96px);
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
+  width: fit-content;
   z-index: 3;
   display: flex;
   flex-direction: column;
@@ -306,6 +323,36 @@ body {
 
 .welcome-music-btn.is-playing .nav-music-icon {
   animation: nav-music-bob 1.6s ease-in-out infinite;
+}
+
+/* ── Music toggle icon + "off" strike ─────────────────────── */
+/* Shared by the welcome screen + nav toggles. When music is off, a
+   horizontal strike line is drawn diagonally across the note. */
+.music-toggle-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+/* Dim the note slightly when muted so the strike reads as "off". */
+.music-toggle-icon .nav-music-icon.is-muted {
+  opacity: 0.55;
+}
+
+.music-toggle-strike {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 26px;
+  height: 2px;
+  border-radius: 2px;
+  background: #d8b26e;
+  box-shadow: 0 0 6px rgba(216, 178, 110, 0.6);
+  /* Diagonal slash across the note. */
+  transform: translate(-50%, -50%) rotate(-45deg);
+  transform-origin: center;
 }
 
 .nav-links {
