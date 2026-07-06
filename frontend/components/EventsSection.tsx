@@ -241,12 +241,24 @@ export default function EventsSection() {
                   <p className="event-date font-body text-xs text-center tracking-wider mb-4" style={{ color: "rgba(246,240,232,0.7)" }}>
                     {event.time}
                   </p>
-                  <p className="event-venue-dark font-body text-xs text-center font-semibold mb-1">
+                  <a
+                    href={event.mapUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="event-venue-dark font-body text-xs text-center font-semibold mb-1 transition-colors duration-300 hover:text-gold"
+                    style={{ textDecoration: "none" }}
+                  >
                     {event.venue}
-                  </p>
-                  <p className="event-location-dark font-body text-center">
+                  </a>
+                  <a
+                    href={event.mapUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="event-location-dark font-body text-center transition-colors duration-300 hover:text-gold"
+                    style={{ textDecoration: "none" }}
+                  >
                     {event.location}
-                  </p>
+                  </a>
                 </div>
 
                 {/* Timeline dot between cards (desktop horizontal layout only) */}
