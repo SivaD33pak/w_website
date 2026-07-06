@@ -60,6 +60,7 @@ export default function RSVPSection() {
   const [status, setStatus] = useState<FormStatus>("idle");
   const [submitMessage, setSubmitMessage] = useState<string | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
+  const [savedName, setSavedName] = useState<string | null>(null);
 
   // ---------------------------------------------------------------------------
   // Field helpers
@@ -153,6 +154,7 @@ export default function RSVPSection() {
 
       if (result.saved) {
         setStatus("success");
+        setSavedName(form.fullName.trim());
         setSubmitMessage(
           result.message ||
             "Thank you! Your RSVP has been received. We can't wait to celebrate with you!",
@@ -161,6 +163,7 @@ export default function RSVPSection() {
         setTimeout(() => {
           setStatus("idle");
           setSubmitMessage(null);
+          setSavedName(null);
         }, 6000);
       } else {
         setStatus("error");
@@ -228,37 +231,6 @@ export default function RSVPSection() {
           <HeartSVG />
           <div className="gold-divider" />
         </div>
-
-        {/* Status toast */}
-        {status === "success" && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-6 w-full rounded-lg p-4 text-center font-body text-sm"
-            style={{
-              background: "rgba(216, 178, 110, 0.15)",
-              border: "1px solid rgba(216, 178, 110, 0.4)",
-              color: "#3a2d2d",
-            }}
-          >
-            🎉 {submitMessage}
-          </motion.div>
-        )}
-
-        {status === "error" && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-6 w-full rounded-lg p-4 text-center font-body text-sm"
-            style={{
-              background: "rgba(201, 143, 162, 0.15)",
-              border: "1px solid rgba(201, 143, 162, 0.4)",
-              color: "#3a2d2d",
-            }}
-          >
-            {submitMessage}
-          </motion.div>
-        )}
 
         <motion.form
           onSubmit={handleSubmit}
@@ -487,6 +459,47 @@ export default function RSVPSection() {
           </div>
         </motion.form>
       </motion.div>
+
+      {/* Bottom popup — success / error */}
+      <AnimatePresence>
+        {(status === "success" || status === "error") && (
+          <motion.div
+            initial={{ opacity: 0, y: 60 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 60 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-6 py-4 rounded-2xl font-body text-sm shadow-2xl"
+            style={{
+              maxWidth: "calc(100% - 2rem)",
+              background:
+                status === "success"
+                  ? "linear-gradient(135deg, rgba(216, 178, 110, 0.95), rgba(201, 143, 162, 0.9))"
+                  : "linear-gradient(135deg, rgba(201, 143, 162, 0.95), rgba(155, 68, 83, 0.9))",
+              color: status === "success" ? "#181b3a" : "#f6f0e8",
+              backdropFilter: "blur(12px)",
+              border: "1px solid rgba(255,255,255,0.15)",
+              boxShadow:
+                status === "success"
+                  ? "0 8px 40px rgba(216, 178, 110, 0.4), 0 0 0 1px rgba(216, 178, 110, 0.1)"
+                  : "0 8px 40px rgba(201, 143, 162, 0.4), 0 0 0 1px rgba(201, 143, 162, 0.1)",
+            }}
+          >
+            {status === "success" ? (
+              <>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                  <polyline points="22 4 12 14.01 9 11.01" />
+                </svg>
+                <span>
+                  🎉 RSVP saved successfully. Thank you, {savedName}!
+                </span>
+              </>
+            ) : (
+              <span>{submitMessage}</span>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }
