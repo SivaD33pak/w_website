@@ -566,7 +566,7 @@ body {
 /* Deep gradient continues the night sky from the Countdown section above
    so the page flows seamlessly. */
 .section-events {
-  background: linear-gradient(180deg, #2c1e3a 0%, #181b3a 45%, #2c1e3a 100%);
+  background: linear-gradient(180deg, #2c1e3a 0%, #181b3a 50%, #181b3a 100%);
   padding-top: clamp(48px, 8vw, 80px);
   padding-bottom: clamp(48px, 8vw, 80px);
 }
