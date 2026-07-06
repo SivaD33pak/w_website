@@ -24,8 +24,6 @@ body {
   /* Responsive: 60px on small mobile → 90px on desktop */
   height: clamp(60px, 10vw, 90px);
   background: rgba(14, 16, 38, 0.35);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
   border-bottom: 1px solid rgba(216, 178, 110, 0.18);
 }
 

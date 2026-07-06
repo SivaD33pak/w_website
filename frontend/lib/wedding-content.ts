@@ -51,19 +51,6 @@ export const venue = {
     "https://www.google.com/maps/search/?api=1&query=Sree%20Ragam%20Convention%20Centre%20Poovar%20Neyyattinkara%20Kerala",
 } as const;
 
-export const sectionOrder = [
-  "home",
-  "countdown",
-  "events",
-  "rsvp",
-] as const;
-
-export const navigationItems = [
-  { label: "HOME", href: "#home", sectionId: "home" },
-  { label: "EVENTS", href: "#events", sectionId: "events" },
-  { label: "RSVP", href: "#rsvp", sectionId: "rsvp" },
-] as const;
-
 export const bibleVerse = {
   quote: '"I have found the one whom my soul loves."',
   reference: "Song of Solomon 3:4",
