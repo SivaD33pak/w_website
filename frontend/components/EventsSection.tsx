@@ -201,25 +201,15 @@ export default function EventsSection() {
         </div>
 
         <motion.div
-          className="flex flex-wrap items-stretch justify-center gap-6 relative px-4 md:px-20 md:gap-0"
+          className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-0"
           variants={staggerContainer}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-50px" }}
         >
-          {/* Timeline line */}
-          <div
-            className="absolute top-1/2 left-4 right-4 hidden md:block"
-            style={{
-              height: 1,
-              background:
-                "linear-gradient(to right, transparent, #d8b26e 20%, #d8b26e 80%, transparent)",
-              zIndex: 0,
-            }}
-          />
-
           {events.map((event, i) => {
             const Icon = icons[i] || CalendarIcon;
+            const isLast = i === events.length - 1;
             return (
               <motion.div
                 key={event.id}
@@ -261,11 +251,32 @@ export default function EventsSection() {
                   </a>
                 </div>
 
-                {/* Timeline dot between cards (desktop horizontal layout only) */}
-                {i < events.length - 1 && (
-                  <div className="flex items-center mx-4 hidden md:flex" style={{ zIndex: 2 }}>
-                    <div className="event-dot rounded-full flex items-center justify-center">
-                      <div className="event-dot-inner rounded-full" style={{ background: "#2c1e3a" }} />
+                {/* Timeline connector between cards */}
+                {!isLast && (
+                  <div
+                    className="flex items-center justify-center relative"
+                    style={{ zIndex: 2 }}
+                  >
+                    {/* Line segment — vertical on mobile, horizontal on desktop */}
+                    <div className="event-connector-line" />
+                    {/* Dot in the middle of the connector */}
+                    <div
+                      className="absolute rounded-full flex items-center justify-center"
+                      style={{
+                        width: 20,
+                        height: 20,
+                        background: "#d8b26e",
+                        boxShadow: "0 0 12px rgba(216, 178, 110, 0.6)",
+                      }}
+                    >
+                      <div
+                        className="rounded-full"
+                        style={{
+                          width: 8,
+                          height: 8,
+                          background: "#2c1e3a",
+                        }}
+                      />
                     </div>
                   </div>
                 )}

@@ -560,6 +560,25 @@ body {
   height: 8px;
 }
 
+/* Responsive timeline connector between event cards.
+   Mobile: vertical line between stacked cards.
+   Desktop: horizontal line between side-by-side cards. */
+.event-connector-line {
+  background: #d8b26e;
+  box-shadow: 0 0 8px rgba(216, 178, 110, 0.4);
+  /* Mobile default: vertical */
+  width: 1.5px;
+  height: clamp(28px, 5vw, 40px);
+}
+
+@media (min-width: 768px) {
+  .event-connector-line {
+    /* Desktop: horizontal */
+    width: clamp(40px, 8vw, 80px);
+    height: 1.5px;
+  }
+}
+
 /* ── Events Section: Magical Night Sky ────────────────────── */
 /* Deep gradient continues the night sky from the Countdown section above
    so the page flows seamlessly. */
