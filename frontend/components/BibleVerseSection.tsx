@@ -1,12 +1,10 @@
 "use client";
 
 import { useRef } from "react";
-import Image from "next/image";
-import { bibleVerse, images } from "@/lib/wedding-content";
+import { bibleVerse } from "@/lib/wedding-content";
 import { motion } from "framer-motion";
 import { fadeInUp } from "@/lib/animations";
 import { generateParticles } from "@/lib/particles";
-import { useParallax } from "@/lib/use-parallax";
 
 function HeartSVG({ size = 10 }: { size?: number }) {
   return (
@@ -16,27 +14,8 @@ function HeartSVG({ size = 10 }: { size?: number }) {
   );
 }
 
-const decorativeImages = images.filter((img) => img.role === "decorative");
-const crossImg = decorativeImages.find((img) => img.id === "decorative-cross");
-const candleImg = decorativeImages.find((img) => img.id === "decorative-candle");
-const bibleImg = decorativeImages.find((img) => img.id === "decorative-bible");
-
 export default function BibleVerseSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const crossLeftRef = useRef<HTMLDivElement>(null);
-  const crossRightRef = useRef<HTMLDivElement>(null);
-  const candleLeftRef = useRef<HTMLDivElement>(null);
-  const candleRightRef = useRef<HTMLDivElement>(null);
-
-  // Subtle cursor/gyro drift on the decorative images.
-  // These elements are `hidden md:block` — on small mobile the refs will be
-  // null and the hook safely skips them. On tablets/desktop they'll float.
-  useParallax(sectionRef, [
-    { ref: crossLeftRef, speedX: 8, speedY: 6 },
-    { ref: crossRightRef, speedX: -8, speedY: 6 },
-    { ref: candleLeftRef, speedX: 5, speedY: 4 },
-    { ref: candleRightRef, speedX: -5, speedY: 4 },
-  ], { smoothing: 0.06 });
 
   return (
     <section
@@ -74,78 +53,6 @@ export default function BibleVerseSection() {
             "radial-gradient(ellipse, rgba(216, 178, 110, 0.08) 0%, transparent 70%)",
         }}
       />
-
-      {/* Decorative crosses */}
-      {crossImg && (
-        <>
-          <div ref={crossLeftRef} className="absolute left-0 top-0 opacity-20 hidden md:block">
-            <Image
-              src={crossImg.src}
-              alt={crossImg.alt}
-              width={192}
-              height={192}
-              className="w-48 h-48 object-contain"
-            />
-          </div>
-          <div
-            ref={crossRightRef}
-            className="absolute right-0 top-0 opacity-20 hidden md:block"
-            style={{ transform: "scaleX(-1)" }}
-          >
-            <Image
-              src={crossImg.src}
-              alt={crossImg.alt}
-              width={192}
-              height={192}
-              className="w-48 h-48 object-contain"
-            />
-          </div>
-        </>
-      )}
-
-      {/* Candles */}
-      {candleImg && (
-        <>
-          <div ref={candleLeftRef} className="absolute bottom-8 left-24 opacity-50 hidden md:block">
-            <Image
-              src={candleImg.src}
-              alt={candleImg.alt}
-              width={40}
-              height={128}
-              className="w-10 h-32 object-contain"
-            />
-          </div>
-          <div ref={candleRightRef} className="absolute bottom-8 right-24 opacity-50 hidden md:block">
-            <Image
-              src={candleImg.src}
-              alt={candleImg.alt}
-              width={40}
-              height={128}
-              className="w-10 h-32 object-contain"
-            />
-          </div>
-        </>
-      )}
-
-      {/* Bible image */}
-      {bibleImg && (
-        <motion.div
-          className="mb-8 opacity-50"
-          variants={fadeInUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-        >
-          <Image
-            src={bibleImg.src}
-            alt={bibleImg.alt}
-            width={256}
-            height={144}
-            className="w-48 sm:w-64 h-auto object-contain"
-            sizes="(max-width: 639px) 192px, 256px"
-          />
-        </motion.div>
-      )}
 
       {/* Cross above quote */}
       <motion.div
