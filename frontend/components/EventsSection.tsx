@@ -201,7 +201,7 @@ export default function EventsSection() {
         </div>
 
         <motion.div
-          className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-0"
+          className="flex flex-col md:flex-row items-center justify-center gap-10 md:gap-12"
           variants={staggerContainer}
           initial="hidden"
           whileInView="visible"
@@ -209,15 +209,21 @@ export default function EventsSection() {
         >
           {events.map((event, i) => {
             const Icon = icons[i] || CalendarIcon;
-            const isLast = i === events.length - 1;
             return (
               <motion.div
                 key={event.id}
-                className="flex flex-col md:flex-row items-center"
+                className="relative"
                 style={{ zIndex: 1 }}
                 variants={staggerItem}
               >
-                <div className="event-card-dark flex flex-col items-center p-6 md:p-8">
+                {/* Time badge — sits on the top border, breaking the line */}
+                <div className="event-time-badge">
+                  <span className="event-time-badge-dot" />
+                  {event.time}
+                  <span className="event-time-badge-dot" />
+                </div>
+
+                <div className="event-card-dark flex flex-col items-center p-6 pt-9 md:p-8 md:pt-10">
                   <div className="mb-4">
                     <Icon />
                   </div>
@@ -228,14 +234,11 @@ export default function EventsSection() {
                   <p className="font-body text-xs text-center tracking-wider mb-1 font-medium" style={{ color: "#f6f0e8" }}>
                     {event.date}
                   </p>
-                  <p className="event-date font-body text-xs text-center tracking-wider mb-4" style={{ color: "rgba(246,240,232,0.7)" }}>
-                    {event.time}
-                  </p>
                   <a
                     href={event.mapUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="event-venue-dark font-body text-xs text-center font-semibold mb-1 transition-colors duration-300 hover:text-gold"
+                    className="event-venue-dark font-body text-xs text-center font-semibold mb-1 mt-4 transition-colors duration-300 hover:text-gold"
                     style={{ textDecoration: "none" }}
                   >
                     {event.venue}
@@ -250,39 +253,6 @@ export default function EventsSection() {
                     {event.location}
                   </a>
                 </div>
-
-                {/* Timeline connector between cards */}
-                {!isLast && (
-                  <div
-                    className="flex items-center justify-center relative"
-                    style={{ zIndex: 2 }}
-                  >
-                    {/* Line segment — vertical on mobile, horizontal on desktop */}
-                    <div className="event-connector-line" />
-                    {/* Dot in the middle of the connector */}
-                    <div
-                      className="absolute rounded-full flex items-center justify-center"
-                      style={{
-                        width: 20,
-                        height: 20,
-                        top: "50%",
-                        left: "50%",
-                        transform: "translate(-50%, -50%)",
-                        background: "#d8b26e",
-                        boxShadow: "0 0 12px rgba(216, 178, 110, 0.6)",
-                      }}
-                    >
-                      <div
-                        className="rounded-full"
-                        style={{
-                          width: 8,
-                          height: 8,
-                          background: "#2c1e3a",
-                        }}
-                      />
-                    </div>
-                  </div>
-                )}
               </motion.div>
             );
           })}
