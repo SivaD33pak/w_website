@@ -464,11 +464,11 @@ export default function RSVPSection() {
       <AnimatePresence>
         {(status === "success" || status === "error") && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 30 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed inset-x-0 top-1/2 left-1/2 z-50 flex items-center justify-center -translate-x-1/2 -translate-y-1/2 px-4"
+            className="fixed inset-x-0 bottom-6 left-0 z-50 flex items-center justify-center px-4"
           >
             <div
               className="flex items-center justify-center gap-3 px-6 py-5 sm:px-8 sm:py-6 rounded-2xl font-body text-sm text-center shadow-2xl w-full"
