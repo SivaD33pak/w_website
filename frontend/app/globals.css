@@ -23,8 +23,7 @@ body {
 .site-nav {
   /* Responsive: 60px on small mobile → 90px on desktop */
   height: clamp(60px, 10vw, 90px);
-  background: rgba(14, 16, 38, 0.35);
-  border-bottom: 1px solid rgba(216, 178, 110, 0.18);
+  background: transparent;
 }
 
 .nav-badge {
