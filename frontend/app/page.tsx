@@ -2,7 +2,6 @@ import WeddingNav from "@/components/WeddingNav";
 import HeroSection from "@/components/HeroSection";
 import CountdownSection from "@/components/CountdownSection";
 import EventsSection from "@/components/EventsSection";
-import BibleVerseSection from "@/components/BibleVerseSection";
 import RSVPSection from "@/components/RSVPSection";
 import WeddingFooter from "@/components/WeddingFooter";
 
@@ -16,8 +15,6 @@ export default function HomePage() {
       <CountdownSection />
 
       <EventsSection />
-
-      <BibleVerseSection />
 
       <RSVPSection />
 

@@ -55,14 +55,12 @@ export const sectionOrder = [
   "home",
   "countdown",
   "events",
-  "bible-verse",
   "rsvp",
 ] as const;
 
 export const navigationItems = [
   { label: "HOME", href: "#home", sectionId: "home" },
   { label: "EVENTS", href: "#events", sectionId: "events" },
-  { label: "BIBLE VERSE", href: "#bible-verse", sectionId: "bible-verse" },
   { label: "RSVP", href: "#rsvp", sectionId: "rsvp" },
 ] as const;
 
