@@ -213,7 +213,7 @@ export default function EventsSection() {
             return (
               <motion.div
                 key={event.id}
-                className="flex items-center"
+                className="flex flex-col md:flex-row items-center"
                 style={{ zIndex: 1 }}
                 variants={staggerItem}
               >
@@ -265,6 +265,9 @@ export default function EventsSection() {
                       style={{
                         width: 20,
                         height: 20,
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
                         background: "#d8b26e",
                         boxShadow: "0 0 12px rgba(216, 178, 110, 0.6)",
                       }}
