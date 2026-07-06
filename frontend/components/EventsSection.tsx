@@ -178,15 +178,6 @@ export default function EventsSection() {
           </div>
         ))}
 
-        {/* Periodic shooting stars */}
-        <div
-          className="events-shooting-star"
-          style={{ top: "18%", left: "8%" }}
-        />
-        <div
-          className="events-shooting-star"
-          style={{ top: "62%", left: "20%", animationDelay: "3.5s" }}
-        />
       </div>
 
       <motion.div
