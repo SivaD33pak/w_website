@@ -114,6 +114,55 @@ body {
   transform: scale(1.18);
 }
 
+/* "Now playing" state — gentle pulsing gold glow to signal music is on. */
+.nav-button.is-playing {
+  background: rgba(216, 178, 110, 0.22);
+  border-color: rgba(216, 178, 110, 0.9);
+  box-shadow: 0 0 24px rgba(216, 178, 110, 0.45);
+  animation: nav-music-pulse 2.4s ease-in-out infinite;
+}
+
+.nav-button.is-playing .nav-button-ring {
+  border-color: rgba(216, 178, 110, 0.35);
+}
+
+/* Soft pulse on the icon itself while playing. */
+.nav-button .nav-music-icon {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.nav-button.is-playing .nav-music-icon {
+  animation: nav-music-bob 1.6s ease-in-out infinite;
+}
+
+@keyframes nav-music-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 18px rgba(216, 178, 110, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(216, 178, 110, 0.6);
+  }
+}
+
+@keyframes nav-music-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1.5px);
+  }
+}
+
+/* Respect users who prefer reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  .nav-button.is-playing,
+  .nav-button.is-playing .nav-music-icon {
+    animation: none;
+  }
+}
+
 .nav-links {
   /* Responsive gap: 20px on tablet → 48px on desktop */
   gap: clamp(20px, 4vw, 48px);
