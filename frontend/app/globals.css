@@ -158,9 +158,154 @@ body {
 /* Respect users who prefer reduced motion. */
 @media (prefers-reduced-motion: reduce) {
   .nav-button.is-playing,
-  .nav-button.is-playing .nav-music-icon {
+  .nav-button.is-playing .nav-music-icon,
+  .welcome-overlay,
+  .welcome-open-btn,
+  .welcome-open-text,
+  .welcome-open-line {
     animation: none;
   }
+}
+
+/* ── Welcome Screen ─────────────────────────────────────── */
+/* Full-screen intro shown on every page load. Tapping "Tap To Open"
+   starts the music and fades this away to reveal the main site. */
+.welcome-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #0a0c24;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.welcome-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* Soft radial darkening toward edges for text legibility, without
+     flattening the background image. */
+  background: radial-gradient(
+    ellipse at center,
+    rgba(10, 12, 36, 0) 35%,
+    rgba(10, 12, 36, 0.55) 100%
+  );
+}
+
+.welcome-text-wrap {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 24px;
+  max-width: min(86vw, 720px);
+}
+
+.welcome-text-img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  /* Subtle lantern glow to match the hero/section gold light. */
+  filter: drop-shadow(0 0 24px rgba(216, 178, 110, 0.28));
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* "Tap To Open" — bottom-center, gold-themed. */
+.welcome-open-btn {
+  position: absolute;
+  bottom: clamp(40px, 8vh, 96px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 12px 24px;
+}
+
+.welcome-open-text {
+  font-family: "Inter", sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: #f6f0e8;
+  opacity: 0.92;
+  /* Gentle breathing to draw the eye without being noisy. */
+  animation: welcome-breathe 2.6s ease-in-out infinite;
+}
+
+.welcome-open-line {
+  width: 56px;
+  height: 1.5px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    #d8b26e,
+    transparent
+  );
+  opacity: 0.8;
+}
+
+@keyframes welcome-breathe {
+  0%,
+  100% {
+    opacity: 0.7;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(2px);
+  }
+}
+
+/* Bottom-left music toggle — mirrors the nav button look. */
+.welcome-music-btn {
+  position: absolute;
+  bottom: clamp(24px, 4vh, 48px);
+  left: clamp(24px, 4vw, 48px);
+  z-index: 3;
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1.5px solid rgba(216, 178, 110, 0.55);
+  background: rgba(216, 178, 110, 0.08);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 16px rgba(216, 178, 110, 0.18);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.welcome-music-btn:hover {
+  background: rgba(216, 178, 110, 0.15);
+  box-shadow: 0 0 24px rgba(216, 178, 110, 0.3);
+}
+
+.welcome-music-btn.is-playing {
+  background: rgba(216, 178, 110, 0.22);
+  border-color: rgba(216, 178, 110, 0.9);
+  box-shadow: 0 0 24px rgba(216, 178, 110, 0.45);
+  animation: nav-music-pulse 2.4s ease-in-out infinite;
+}
+
+.welcome-music-btn.is-playing .nav-music-icon {
+  animation: nav-music-bob 1.6s ease-in-out infinite;
 }
 
 .nav-links {
