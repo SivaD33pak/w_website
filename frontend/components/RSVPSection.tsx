@@ -460,30 +460,33 @@ export default function RSVPSection() {
         </motion.form>
       </motion.div>
 
-      {/* Bottom popup — success / error */}
+      {/* Centered popup — success / error */}
       <AnimatePresence>
         {(status === "success" || status === "error") && (
           <motion.div
-            initial={{ opacity: 0, y: 60 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 60 }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-6 py-4 rounded-2xl font-body text-sm shadow-2xl"
-            style={{
-              maxWidth: "calc(100% - 2rem)",
-              background:
-                status === "success"
-                  ? "linear-gradient(135deg, rgba(216, 178, 110, 0.95), rgba(201, 143, 162, 0.9))"
-                  : "linear-gradient(135deg, rgba(201, 143, 162, 0.95), rgba(155, 68, 83, 0.9))",
-              color: status === "success" ? "#181b3a" : "#f6f0e8",
-              backdropFilter: "blur(12px)",
-              border: "1px solid rgba(255,255,255,0.15)",
-              boxShadow:
-                status === "success"
-                  ? "0 8px 40px rgba(216, 178, 110, 0.4), 0 0 0 1px rgba(216, 178, 110, 0.1)"
-                  : "0 8px 40px rgba(201, 143, 162, 0.4), 0 0 0 1px rgba(201, 143, 162, 0.1)",
-            }}
+            className="fixed inset-x-0 top-1/2 left-1/2 z-50 flex items-center justify-center -translate-x-1/2 -translate-y-1/2 px-4"
           >
+            <div
+              className="flex items-center justify-center gap-3 px-6 py-5 sm:px-8 sm:py-6 rounded-2xl font-body text-sm text-center shadow-2xl w-full"
+              style={{
+                maxWidth: "calc(100% - 2rem)",
+                background:
+                  status === "success"
+                    ? "linear-gradient(135deg, rgba(216, 178, 110, 0.95), rgba(201, 143, 162, 0.9))"
+                    : "linear-gradient(135deg, rgba(201, 143, 162, 0.95), rgba(155, 68, 83, 0.9))",
+                color: status === "success" ? "#181b3a" : "#f6f0e8",
+                backdropFilter: "blur(12px)",
+                border: "1px solid rgba(255,255,255,0.15)",
+                boxShadow:
+                  status === "success"
+                    ? "0 8px 60px rgba(216, 178, 110, 0.5), 0 0 0 1px rgba(216, 178, 110, 0.1)"
+                    : "0 8px 60px rgba(201, 143, 162, 0.5), 0 0 0 1px rgba(201, 143, 162, 0.1)",
+              }}
+            >
             {status === "success" ? (
               <>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -497,6 +500,7 @@ export default function RSVPSection() {
             ) : (
               <span>{submitMessage}</span>
             )}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
