@@ -57,7 +57,6 @@ export const sectionOrder = [
   "events",
   "bible-verse",
   "rsvp",
-  "contact",
 ] as const;
 
 export const navigationItems = [

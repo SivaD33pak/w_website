@@ -10,13 +10,6 @@ export const heroData = {
 } as const;
 
 export const contactData = {
-  venue: {
-    name: "Sree Ragam Convention Centre",
-    address:
-      "Poovar - Neyyatinkara Rd, Swadeshabhimani Nagar, Neyyattinkara, Kerala",
-    mapUrl:
-      "https://www.google.com/maps/search/?api=1&query=Sree%20Ragam%20Convention%20Centre%20Poovar%20Neyyattinkara%20Kerala",
-  },
   email: "sushmi.nijin2026@gmail.com",
   tagline: "WE CAN'T WAIT TO CELEBRATE WITH YOU!",
 } as const;
