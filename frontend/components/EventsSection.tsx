@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { events as localEvents } from "@/lib/wedding-content";
 import { getEnrichedEvents, type LocalEvent } from "@/lib/api-data";
 import { motion } from "framer-motion";
 import { fadeInUp, staggerContainer, staggerItem } from "@/lib/animations";
+import { generateStars, generateSparkles } from "@/lib/stars";
 import Image from "next/image";
 
 function HeartSVG({ size = 10 }: { size?: number }) {
@@ -72,10 +73,32 @@ function StarIcon() {
 
 const icons = [CalendarIcon, PeopleIcon, StarIcon];
 
+/** A 4-point sparkle star for the background field. */
+function FieldSparkle({ size = 12 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 12 12"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M6,0 L7,5 L12,6 L7,7 L6,12 L5,7 L0,6 L5,5 Z"
+        fill="#D8B26E"
+      />
+    </svg>
+  );
+}
+
 export default function EventsSection() {
   // Seed with local data so SSR + first paint render immediately, then swap in
   // the API-merged data when NEXT_PUBLIC_USE_API_DATA is enabled.
   const [events, setEvents] = useState<LocalEvent[]>([...localEvents]);
+
+  // Deterministic star field — memoized so it is stable across re-renders and
+  // renders identically on server and client (no hydration mismatch).
+  const stars = useMemo(() => generateStars(60, 7), []);
+  const sparkles = useMemo(() => generateSparkles(6, 19), []);
 
   useEffect(() => {
     let active = true;
@@ -90,21 +113,85 @@ export default function EventsSection() {
   return (
     <section
       id="events"
-      className="section-paper relative w-full overflow-hidden"
+      className="section-events relative w-full overflow-hidden"
     >
-      {/* Background pattern image */}
-      <div className="absolute inset-0" style={{ pointerEvents: "none", zIndex: 0 }}>
+      {/* ── Magical night-sky background ── */}
+      {/* Nebula glows for depth */}
+      <div
+        className="events-nebula"
+        style={{
+          top: "10%",
+          left: "12%",
+          width: "40vw",
+          height: "40vw",
+          maxWidth: 420,
+          maxHeight: 420,
+          background:
+            "radial-gradient(circle, rgba(216,178,110,0.16) 0%, transparent 70%)",
+        }}
+      />
+      <div
+        className="events-nebula"
+        style={{
+          bottom: "8%",
+          right: "10%",
+          width: "38vw",
+          height: "38vw",
+          maxWidth: 380,
+          maxHeight: 380,
+          background:
+            "radial-gradient(circle, rgba(201,143,162,0.14) 0%, transparent 70%)",
+        }}
+      />
+
+      {/* Twinkling star field */}
+      <div className="events-stars">
+        {stars.map((s, i) => (
+          <div
+            key={`star-${i}`}
+            className={`events-star${s.tier >= 2 ? " gold" : ""}`}
+            style={{
+              top: `${s.top}%`,
+              left: `${s.left}%`,
+              width: `${s.size}px`,
+              height: `${s.size}px`,
+              opacity: s.opacity,
+              animationDuration: `${s.duration}s`,
+              animationDelay: `${s.delay}s`,
+            }}
+          />
+        ))}
+
+        {/* Larger 4-point sparkle stars */}
+        {sparkles.map((sp, i) => (
+          <div
+            key={`sparkle-${i}`}
+            className="events-sparkle"
+            style={{
+              top: `${sp.top}%`,
+              left: `${sp.left}%`,
+              animationDuration: `${sp.duration}s`,
+              animationDelay: `${sp.delay}s`,
+            }}
+          >
+            <FieldSparkle size={sp.size} />
+          </div>
+        ))}
+
+        {/* Periodic shooting stars */}
         <div
-          className="w-full h-full"
-          style={{
-            background:
-              "linear-gradient(135deg, rgba(216,178,110,0.03) 0%, rgba(201,143,162,0.05) 50%, rgba(216,178,110,0.03) 100%)",
-          }}
+          className="events-shooting-star"
+          style={{ top: "18%", left: "8%" }}
+        />
+        <div
+          className="events-shooting-star"
+          style={{ top: "62%", left: "20%", animationDelay: "3.5s" }}
         />
       </div>
 
       <motion.div
         className="relative flex flex-col items-center"
+        style={{ zIndex: 2 }}
         variants={fadeInUp}
         initial="hidden"
         whileInView="visible"
@@ -113,7 +200,7 @@ export default function EventsSection() {
         <p className="section-eyebrow font-body text-xs tracking-widest uppercase mb-2">
           JOIN US FOR
         </p>
-        <h2 className="section-title font-headings text-cream-foreground mb-2">
+        <h2 className="section-title font-headings mb-2" style={{ color: "#f6f0e8" }}>
           Events
         </h2>
         <div className="divider-row mb-12">
@@ -149,24 +236,24 @@ export default function EventsSection() {
                 style={{ zIndex: 1 }}
                 variants={staggerItem}
               >
-                <div className="event-card flex flex-col items-center p-6 md:p-8">
+                <div className="event-card-dark flex flex-col items-center p-6 md:p-8">
                   <div className="mb-4">
                     <Icon />
                   </div>
-                  <h3 className="event-card-title font-body font-semibold text-cream-foreground text-sm tracking-widest text-center uppercase">
+                  <h3 className="event-card-title-dark font-body font-semibold text-sm tracking-widest text-center uppercase">
                     {event.title}
                   </h3>
                   <div className="event-divider" />
-                  <p className="font-body text-xs text-cream-foreground text-center tracking-wider mb-1 font-medium">
+                  <p className="font-body text-xs text-center tracking-wider mb-1 font-medium" style={{ color: "#f6f0e8" }}>
                     {event.date}
                   </p>
-                  <p className="event-date font-body text-xs text-cream-foreground text-center tracking-wider mb-4">
+                  <p className="event-date font-body text-xs text-center tracking-wider mb-4" style={{ color: "rgba(246,240,232,0.7)" }}>
                     {event.time}
                   </p>
-                  <p className="event-venue font-body text-xs text-center font-semibold mb-1">
+                  <p className="event-venue-dark font-body text-xs text-center font-semibold mb-1">
                     {event.venue}
                   </p>
-                  <p className="event-location font-body text-center">
+                  <p className="event-location-dark font-body text-center">
                     {event.location}
                   </p>
                 </div>
@@ -175,7 +262,7 @@ export default function EventsSection() {
                 {i < events.length - 1 && (
                   <div className="flex items-center mx-4 hidden md:flex" style={{ zIndex: 2 }}>
                     <div className="event-dot rounded-full flex items-center justify-center">
-                      <div className="event-dot-inner rounded-full bg-cream" />
+                      <div className="event-dot-inner rounded-full" style={{ background: "#2c1e3a" }} />
                     </div>
                   </div>
                 )}
