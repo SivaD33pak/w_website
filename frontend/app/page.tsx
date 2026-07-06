@@ -1,6 +1,5 @@
 import WeddingNav from "@/components/WeddingNav";
 import HeroSection from "@/components/HeroSection";
-import TornPaper from "@/components/TornPaper";
 import CountdownSection from "@/components/CountdownSection";
 import EventsSection from "@/components/EventsSection";
 import BibleVerseSection from "@/components/BibleVerseSection";
@@ -16,8 +15,6 @@ export default function HomePage() {
       <HeroSection />
 
       <CountdownSection />
-
-      <TornPaper />
 
       <EventsSection />
 
