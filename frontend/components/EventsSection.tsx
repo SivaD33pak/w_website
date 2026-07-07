@@ -71,6 +71,25 @@ function StarIcon() {
   );
 }
 
+function MapPinIcon() {
+  return (
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" />
+      <circle cx="12" cy="10" r="3" />
+    </svg>
+  );
+}
+
 const icons = [CalendarIcon, PeopleIcon, StarIcon];
 
 /** A 4-point sparkle star for the background field. */
@@ -247,10 +266,12 @@ export default function EventsSection() {
                     href={event.mapUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="event-location-dark font-body text-center transition-colors duration-300 hover:text-gold"
+                    className="event-location-dark font-body text-center transition-colors duration-300 hover:text-gold inline-flex items-center justify-center gap-2"
                     style={{ textDecoration: "none" }}
+                    aria-label={`Open ${event.title} location in Google Maps`}
                   >
-                    {event.location}
+                    <MapPinIcon />
+                    <span>Open In Google Maps</span>
                   </a>
                 </div>
               </motion.div>
