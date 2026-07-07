@@ -63,6 +63,8 @@ class GoogleSheetsManager:
         # Open the first worksheet (or the one named "Sheet1").
         spreadsheet = self._client.open_by_key(sheet_id)
         self._worksheet = spreadsheet.sheet1
+        self._whatsapp_row_by_number = self._load_whatsapp_index()
+        self._next_row = max(self._whatsapp_row_by_number.values(), default=1) + 1
 
         logger.info(
             "GoogleSheetsManager initialised — sheet: %s (%s)",
@@ -96,23 +98,23 @@ class GoogleSheetsManager:
         ]
 
         with self._lock:
-            all_records = self._worksheet.get_all_records()
-            updated = False
+            existing_row = self._whatsapp_row_by_number.get(whatsapp_number)
 
-            # Search for an existing row matching the WhatsApp number.
-            # The header in the sheet must match the column name exactly.
-            whatsapp_col = "WhatsappNumber"
-            for idx, record in enumerate(all_records, start=2):  # 1-indexed, row 1 is header
-                existing = str(record.get(whatsapp_col, "")).strip()
-                if _normalize_whatsapp(existing) == whatsapp_number:
-                    # Update the existing row.
-                    for col_offset, value in enumerate(row_values):
-                        self._worksheet.update_cell(idx, col_offset + 1, value)
-                    updated = True
-                    break
-
-            if not updated:
-                self._worksheet.append_row(row_values)
+            if existing_row:
+                self._worksheet.update(
+                    range_name=f"A{existing_row}:H{existing_row}",
+                    values=[row_values],
+                    value_input_option="USER_ENTERED",
+                )
+                updated = True
+            else:
+                self._worksheet.append_row(
+                    row_values,
+                    value_input_option="USER_ENTERED",
+                )
+                self._whatsapp_row_by_number[whatsapp_number] = self._next_row
+                self._next_row += 1
+                updated = False
 
         action = "updated" if updated else "saved"
         logger.info(
@@ -124,6 +126,25 @@ class GoogleSheetsManager:
             "guest_name": data.full_name,
             "message": f"RSVP {action} successfully. Thank you, {data.full_name}!",
         }
+
+    def _load_whatsapp_index(self) -> dict[str, int]:
+        """Load only the WhatsApp column once so submits avoid full-sheet reads."""
+        try:
+            header_row = self._worksheet.row_values(1)
+            whatsapp_col = header_row.index("WhatsappNumber") + 1
+        except ValueError:
+            logger.warning(
+                "WhatsappNumber header missing; assuming RSVP column order."
+            )
+            whatsapp_col = _RSVP_COLUMNS.index("WhatsappNumber") + 1
+
+        values = self._worksheet.col_values(whatsapp_col)
+        index: dict[str, int] = {}
+        for row_number, value in enumerate(values[1:], start=2):
+            normalized = _normalize_whatsapp(value)
+            if normalized != "+91":
+                index[normalized] = row_number
+        return index
 
 
 def _normalize_whatsapp(number: str) -> str:

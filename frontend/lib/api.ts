@@ -17,7 +17,7 @@ export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, "") || "";
 
 /** Request timeout in milliseconds for every API call. */
-const REQUEST_TIMEOUT_MS = 15_000;
+const REQUEST_TIMEOUT_MS = 25_000;
 
 /**
  * Typed error thrown by {@link apiFetch} on a non-2xx response or network
@@ -80,7 +80,9 @@ async function apiFetch<T>(
   } catch (err) {
     // AbortError → translate into a friendlier message for the UI.
     if (err instanceof DOMException && err.name === "AbortError") {
-      throw new ApiError("Request timed out. Please try again.");
+      throw new ApiError(
+        "The RSVP is taking longer than usual. Please check your connection and try again.",
+      );
     }
     // Already an ApiError — rethrow as-is.
     if (err instanceof ApiError) throw err;
